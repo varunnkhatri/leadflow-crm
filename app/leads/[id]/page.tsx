@@ -1,7 +1,7 @@
+import { Suspense } from "react";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 
 type PageProps = {
@@ -11,15 +11,24 @@ type PageProps = {
 };
 
 async function LeadPageContent({ params }: PageProps) {
-    await connection();
+  await connection();
 
   const { id } = await params;
 
+  if (!id || id === "undefined") {
+    return (
+      <ErrorState
+        title="Invalid lead ID"
+        message="The lead URL did not contain a valid lead ID."
+      />
+    );
+  }
+
   const supabase = await createClient();
 
-  // --------------------------------------------------
-  // AUTHENTICATION
-  // --------------------------------------------------
+  // -----------------------------
+  // AUTH
+  // -----------------------------
 
   const {
     data: { user },
@@ -29,90 +38,157 @@ async function LeadPageContent({ params }: PageProps) {
     redirect("/auth/login");
   }
 
-  // --------------------------------------------------
-  // GET USER PROFILE / CLIENT
-  // --------------------------------------------------
+  // -----------------------------
+  // CRM USER
+  // -----------------------------
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("client_id, full_name")
+  const { data: crmUser, error: userError } = await supabase
+    .from("users")
+    .select(`
+      id,
+      email,
+      full_name,
+      role,
+      business_id
+    `)
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
-  if (!profile?.client_id) {
+  if (userError || !crmUser) {
     return (
-      <main className="min-h-screen bg-slate-950 p-8 text-white">
-        <div className="mx-auto max-w-5xl">
-          <h1 className="text-2xl font-bold">
-            Client configuration missing
-          </h1>
-
-          <p className="mt-2 text-slate-400">
-            Your account is authenticated, but it is not connected to a
-            client profile yet.
-          </p>
-        </div>
-      </main>
+      <ErrorState
+        title="Account not configured"
+        message="Your account could not be connected to the CRM."
+        detail={userError?.message}
+      />
     );
   }
 
-  // --------------------------------------------------
-  // GET LEAD
-  // --------------------------------------------------
+  if (!crmUser.business_id) {
+    return (
+      <ErrorState
+        title="No business assigned"
+        message="Your CRM user does not have a business assigned."
+      />
+    );
+  }
+
+  const businessId = crmUser.business_id;
+
+  // -----------------------------
+  // BUSINESS
+  // -----------------------------
+
+  const { data: business, error: businessError } = await supabase
+    .from("businesses")
+    .select("id, name, industry, website")
+    .eq("id", businessId)
+    .maybeSingle();
+
+  if (businessError || !business) {
+    return (
+      <ErrorState
+        title="Business not found"
+        message="Your business could not be loaded."
+        detail={businessError?.message}
+      />
+    );
+  }
+
+  // -----------------------------
+  // LEAD
+  // -----------------------------
 
   const { data: lead, error: leadError } = await supabase
     .from("leads")
-    .select(
-      `
-        lead_id,
-        customer_name,
-        phone,
-        email,
-        original_message,
-        requested_service,
-        intent,
-        urgency,
-        purchase_intent,
-        lead_score,
-        lead_status,
-        pipeline_stage,
-        created_at
-      `
-    )
-    .eq("lead_id", id)
-    .eq("client_id", profile.client_id)
-    .single();
-
-  // --------------------------------------------------
-  // GET CONVERSATION
-  // --------------------------------------------------
-
-  const { data: messagesData } = await supabase
-    .from("conversations")
-    .select(
-      `
-        id,
-        direction,
-        sender_type,
-        message,
-        channel,
-        created_at
-      `
-    )
-    .eq("lead_id", id)
-    .order("created_at", { ascending: true });
-
-  // Supabase may return null, so always use an array.
-  const messages = messagesData ?? [];
-
-  // --------------------------------------------------
-  // HANDLE MISSING LEAD
-  // --------------------------------------------------
+    .select(`
+      id,
+      business_id,
+      customer_id,
+      enquiry,
+      product_interest,
+      budget_raw,
+      location,
+      source,
+      campaign,
+      landing_page,
+      temperature,
+      intent,
+      category,
+      lead_score,
+      confidence,
+      urgency,
+      purchase_probability,
+      requirements,
+      timeline,
+      recommended_next_action,
+      human_review_required,
+      stage,
+      status,
+      assigned_user_id,
+      deal_value,
+      created_at,
+      updated_at
+    `)
+    .eq("id", id)
+    .eq("business_id", businessId)
+    .is("deleted_at", null)
+    .maybeSingle();
 
   if (leadError || !lead) {
     return (
-      <main className="min-h-screen bg-slate-950 p-8 text-white">
-        <div className="mx-auto max-w-5xl">
+      <ErrorState
+        title="Lead not found"
+        message="This lead does not exist or does not belong to your business."
+        detail={
+          leadError
+            ? `${leadError.message} | Requested ID: ${id}`
+            : `Requested ID: ${id}`
+        }
+      />
+    );
+  }
+
+  // -----------------------------
+  // CUSTOMER
+  // -----------------------------
+
+  const { data: customer, error: customerError } = await supabase
+    .from("customers")
+    .select(`
+      id,
+      full_name,
+      phone,
+      email,
+      consent,
+      source,
+      first_seen_at,
+      last_seen_at
+    `)
+    .eq("id", lead.customer_id)
+    .eq("business_id", businessId)
+    .is("deleted_at", null)
+    .maybeSingle();
+
+  if (customerError || !customer) {
+    return (
+      <ErrorState
+        title="Customer not found"
+        message="The lead exists, but its customer record could not be loaded."
+        detail={customerError?.message}
+      />
+    );
+  }
+
+  // -----------------------------
+  // PAGE
+  // -----------------------------
+
+  return (
+    <main className="min-h-screen bg-slate-950 text-white">
+      <div className="mx-auto max-w-7xl px-6 py-8">
+
+        <div className="flex items-center justify-between">
           <Link
             href="/protected"
             className="text-sm text-slate-400 hover:text-white"
@@ -120,53 +196,36 @@ async function LeadPageContent({ params }: PageProps) {
             ← Back to Dashboard
           </Link>
 
-          <h1 className="mt-8 text-2xl font-bold">
-            Lead not found
-          </h1>
-
-          <p className="mt-2 text-slate-400">
-            This lead does not exist or does not belong to your account.
-          </p>
+          <span className="text-sm text-slate-500">
+            {business.name}
+          </span>
         </div>
-      </main>
-    );
-  }
-
-  // --------------------------------------------------
-  // PAGE
-  // --------------------------------------------------
-
-  return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <div className="mx-auto max-w-6xl px-6 py-8">
-
-        {/* Back */}
-        <Link
-          href="/protected"
-          className="text-sm text-slate-400 hover:text-white"
-        >
-          ← Back to Dashboard
-        </Link>
 
         {/* Header */}
-        <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div className="mt-8 flex flex-col gap-5 border-b border-slate-800 pb-8 md:flex-row md:items-start md:justify-between">
           <div>
-            <h1 className="text-4xl font-bold">
-              {lead.customer_name}
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-400">
+              Lead Details
+            </p>
+
+            <h1 className="mt-2 text-4xl font-bold">
+              {customer.full_name || "Unknown Customer"}
             </h1>
 
             <p className="mt-2 text-slate-400">
-              {lead.requested_service || "No service specified"}
+              {lead.product_interest ||
+                lead.category ||
+                "General enquiry"}
             </p>
           </div>
 
-          <StatusBadge status={lead.lead_status} />
+          <TemperatureBadge
+            temperature={lead.temperature}
+            large
+          />
         </div>
 
-        {/* --------------------------------------------------
-            INFORMATION CARDS
-        -------------------------------------------------- */}
-
+        {/* Top cards */}
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
 
           {/* Customer */}
@@ -175,290 +234,441 @@ async function LeadPageContent({ params }: PageProps) {
               Customer
             </h2>
 
-            <div className="mt-5 space-y-4">
+            <div className="mt-6 space-y-5">
+              <InfoItem
+                label="Name"
+                value={customer.full_name}
+              />
 
-              <div>
-                <p className="text-sm text-slate-500">
-                  Phone
-                </p>
+              <InfoItem
+                label="Email"
+                value={customer.email}
+              />
 
-                <p className="mt-1">
-                  {lead.phone || "Not provided"}
-                </p>
-              </div>
+              <InfoItem
+                label="Phone"
+                value={customer.phone}
+              />
 
-              <div>
-                <p className="text-sm text-slate-500">
-                  Email
-                </p>
+              <InfoItem
+                label="Consent"
+                value={customer.consent ? "Yes" : "No"}
+              />
 
-                <p className="mt-1 break-all">
-                  {lead.email || "Not provided"}
-                </p>
-              </div>
+              <InfoItem
+                label="Source"
+                value={customer.source}
+              />
+            </div>
 
-              <div>
-                <p className="text-sm text-slate-500">
-                  Intent
-                </p>
+<div className="mt-6 space-y-3">
 
-                <p className="mt-1">
-                  {lead.intent || "Unknown"}
-                </p>
-              </div>
+  {customer.phone && (
+    <>
+      <a
+        href={`tel:${customer.phone}`}
+        className="block rounded-xl bg-white px-4 py-3 text-center font-semibold text-black hover:bg-slate-200"
+      >
+        📞 Call Customer
+      </a>
 
-              <div>
-                <p className="text-sm text-slate-500">
-                  Urgency
-                </p>
+      <a
+        href={`https://wa.me/${customer.phone.replace(/\D/g, "")}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block rounded-xl border border-green-700 px-4 py-3 text-center font-semibold text-green-300 hover:bg-green-950/30"
+      >
+        💬 WhatsApp Customer
+      </a>
+    </>
+  )}
 
-                <p className="mt-1">
-                  {lead.urgency || "Unknown"}
-                </p>
-              </div>
+  {customer.email && (
+    <a
+      href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+        customer.email
+      )}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block rounded-xl border border-slate-700 px-4 py-3 text-center font-semibold hover:bg-slate-800"
+    >
+      ✉️ Email Customer
+    </a>
+  )}
 
-              <div>
-                <p className="text-sm text-slate-500">
-                  Purchase Intent
-                </p>
+</div>
+          </div>
 
-                <p className="mt-1">
-                  {lead.purchase_intent || "Unknown"}
-                </p>
-              </div>
+          {/* AI / Lead */}
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <h2 className="text-lg font-semibold">
+              Lead Intelligence
+            </h2>
 
+            <div className="mt-6 space-y-5">
+              <InfoItem
+                label="Lead Score"
+                value={
+                  lead.lead_score !== null
+                    ? `${lead.lead_score} / 100`
+                    : null
+                }
+              />
+
+              <InfoItem
+                label="Intent"
+                value={lead.intent}
+              />
+
+              <InfoItem
+                label="Category"
+                value={lead.category}
+              />
+
+              <InfoItem
+                label="Urgency"
+                value={lead.urgency}
+              />
+
+              <InfoItem
+                label="Purchase Probability"
+                value={
+                  lead.purchase_probability !== null
+                    ? `${Math.round(
+                        Number(lead.purchase_probability) * 100
+                      )}%`
+                    : null
+                }
+              />
+
+              <InfoItem
+                label="Confidence"
+                value={
+                  lead.confidence !== null
+                    ? `${Math.round(
+                        Number(lead.confidence) * 100
+                      )}%`
+                    : null
+                }
+              />
             </div>
           </div>
 
-          {/* Lead Score */}
+          {/* Pipeline */}
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
             <h2 className="text-lg font-semibold">
-              Lead Score
+              Pipeline
             </h2>
 
-            <div className="mt-6">
-              <p className="text-6xl font-bold">
-                {lead.lead_score ?? 0}
-              </p>
+            <div className="mt-6 space-y-5">
+              <InfoItem
+                label="Stage"
+                value={lead.stage}
+              />
 
-              <p className="mt-2 text-slate-400">
-                out of 100
-              </p>
-            </div>
+              <InfoItem
+                label="Status"
+                value={lead.status}
+              />
 
-            <div className="mt-8">
-              <p className="text-sm text-slate-500">
-                Pipeline Stage
-              </p>
+              <InfoItem
+                label="Deal Value"
+                value={
+                  lead.deal_value !== null
+                    ? `₹${Number(
+                        lead.deal_value
+                      ).toLocaleString("en-IN")}`
+                    : null
+                }
+              />
 
-              <p className="mt-2 text-lg font-semibold">
-                {lead.pipeline_stage || "NEW"}
-              </p>
-            </div>
-          </div>
+              <InfoItem
+                label="Source"
+                value={lead.source}
+              />
 
-          {/* Actions */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-            <h2 className="text-lg font-semibold">
-              Actions
-            </h2>
+              <InfoItem
+                label="Campaign"
+                value={lead.campaign}
+              />
 
-            <div className="mt-5 space-y-3">
-
-              {lead.phone && (
-                <a
-                  href={`tel:${lead.phone}`}
-                  className="block rounded-xl bg-white px-4 py-3 text-center font-medium text-black hover:bg-slate-200"
-                >
-                  📞 Call Customer
-                </a>
-              )}
-
-              {lead.email && (
-                <a
-                  href={`mailto:${lead.email}`}
-                  className="block rounded-xl border border-slate-700 px-4 py-3 text-center font-medium hover:bg-slate-800"
-                >
-                  ✉️ Email Customer
-                </a>
-              )}
-
-              <button
-                type="button"
-                disabled
-                className="w-full rounded-xl border border-slate-800 px-4 py-3 text-slate-500"
-              >
-                Mark as Booked
-              </button>
-
-              <button
-                type="button"
-                disabled
-                className="w-full rounded-xl border border-slate-800 px-4 py-3 text-slate-500"
-              >
-                Mark as Won
-              </button>
-
+              <InfoItem
+                label="Human Review"
+                value={
+                  lead.human_review_required
+                    ? "Required"
+                    : "Not required"
+                }
+              />
             </div>
           </div>
         </div>
 
-        {/* --------------------------------------------------
-            ORIGINAL ENQUIRY
-        -------------------------------------------------- */}
-
-        <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+        {/* Original enquiry */}
+        <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-6">
           <h2 className="text-lg font-semibold">
             Original Enquiry
           </h2>
 
           <div className="mt-4 rounded-xl bg-slate-950 p-5 leading-7 text-slate-300">
-            {lead.original_message || "No message available."}
+            {lead.enquiry || "No enquiry recorded."}
           </div>
-        </div>
+        </section>
 
-        {/* --------------------------------------------------
-            CONVERSATION
-        -------------------------------------------------- */}
+        {/* Requirements + timeline */}
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
 
-        <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold">
-                Conversation
-              </h2>
+          <section className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <h2 className="text-lg font-semibold">
+              Requirements
+            </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
-                Customer and AI communication history
-              </p>
+            <div className="mt-4 rounded-xl bg-slate-950 p-5 leading-7 text-slate-300">
+              {lead.requirements ||
+                "No requirements recorded."}
             </div>
+          </section>
 
-            <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
-              {messages.length}{" "}
-              {messages.length === 1 ? "message" : "messages"}
-            </span>
-          </div>
+          <section className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <h2 className="text-lg font-semibold">
+              Timeline
+            </h2>
 
-          <div className="mt-6 space-y-4">
+            <div className="mt-4 rounded-xl bg-slate-950 p-5 leading-7 text-slate-300">
+              {lead.timeline ||
+                "No timeline recorded."}
+            </div>
+          </section>
 
-            {messages.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-slate-700 p-8 text-center">
-                <p className="text-slate-400">
-                  No conversation history yet.
-                </p>
-
-                <p className="mt-2 text-sm text-slate-500">
-                  Messages will appear here as the AI and customer
-                  communicate.
-                </p>
-              </div>
-            ) : (
-              messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${
-                    message.direction === "outbound"
-                      ? "justify-end"
-                      : "justify-start"
-                  }`}
-                >
-                  <div
-                    className={`max-w-2xl rounded-2xl px-4 py-3 ${
-                      message.direction === "outbound"
-                        ? "bg-blue-600 text-white"
-                        : "bg-slate-800 text-slate-200"
-                    }`}
-                  >
-
-                    <div className="mb-1 flex items-center gap-2">
-                      <p className="text-xs font-semibold opacity-80">
-                        {message.sender_type === "ai"
-                          ? "AI"
-                          : message.sender_type === "human"
-                          ? "Team Member"
-                          : "Customer"}
-                      </p>
-
-                      <span className="text-[10px] opacity-50">
-                        {message.channel}
-                      </span>
-                    </div>
-
-                    <p className="leading-6">
-                      {message.message}
-                    </p>
-
-                    {message.created_at && (
-                      <p className="mt-2 text-[10px] opacity-50">
-                        {new Date(message.created_at).toLocaleString()}
-                      </p>
-                    )}
-
-                  </div>
-                </div>
-              ))
-            )}
-
-          </div>
         </div>
 
+        {/* AI recommendation */}
+        <section className="mt-6 rounded-2xl border border-blue-900/50 bg-blue-950/20 p-6">
+          <h2 className="text-lg font-semibold text-blue-300">
+            AI Recommended Next Action
+          </h2>
+
+          <div className="mt-4 rounded-xl bg-slate-950 p-5 leading-7 text-slate-300">
+            {lead.recommended_next_action ||
+              "No recommendation available."}
+          </div>
+        </section>
+
+        {/* Extra info */}
+        <div className="mt-6 grid gap-6 lg:grid-cols-3">
+          <InfoCard
+            title="Budget"
+            value={lead.budget_raw}
+          />
+
+          <InfoCard
+            title="Location"
+            value={lead.location}
+          />
+
+          <InfoCard
+            title="Landing Page"
+            value={lead.landing_page}
+          />
+        </div>
+
+        {/* Dates */}
+        <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <InfoItem
+              label="Created"
+              value={formatDateTime(lead.created_at)}
+            />
+
+            <InfoItem
+              label="Last Updated"
+              value={formatDateTime(lead.updated_at)}
+            />
+          </div>
+        </section>
       </div>
     </main>
   );
 }
 
-// --------------------------------------------------
-// STATUS BADGE
-// --------------------------------------------------
-
-function StatusBadge({
-  status,
-}: {
-  status: string | null;
-}) {
-  if (status === "HOT") {
-    return (
-      <span className="rounded-full bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-300">
-        🔥 HOT
-      </span>
-    );
-  }
-
-  if (status === "WARM") {
-    return (
-      <span className="rounded-full bg-yellow-500/15 px-4 py-2 text-sm font-semibold text-yellow-300">
-        🟡 WARM
-      </span>
-    );
-  }
-
-  if (status === "COLD") {
-    return (
-      <span className="rounded-full bg-sky-500/15 px-4 py-2 text-sm font-semibold text-sky-300">
-        🔵 COLD
-      </span>
-    );
-  }
-
-  return (
-    <span className="rounded-full bg-slate-700 px-4 py-2 text-sm font-semibold text-slate-300">
-      UNKNOWN
-    </span>
-  );
-}
+// -----------------------------
+// PAGE WRAPPER
+// -----------------------------
 
 export default function LeadPage(props: PageProps) {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-slate-950 flex items-center justify-center text-white">
-          <div className="text-slate-400">
+        <main className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
+          <p className="text-slate-400">
             Loading lead...
-          </div>
+          </p>
         </main>
       }
     >
       <LeadPageContent {...props} />
     </Suspense>
   );
+}
+
+// -----------------------------
+// INFO ITEM
+// -----------------------------
+
+function InfoItem({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number | null | undefined;
+}) {
+  return (
+    <div>
+      <p className="text-sm text-slate-500">
+        {label}
+      </p>
+
+      <p className="mt-1 break-words text-slate-200">
+        {value || "Not provided"}
+      </p>
+    </div>
+  );
+}
+
+// -----------------------------
+// INFO CARD
+// -----------------------------
+
+function InfoCard({
+  title,
+  value,
+}: {
+  title: string;
+  value: string | null | undefined;
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+      <p className="text-sm text-slate-500">
+        {title}
+      </p>
+
+      <p className="mt-2 break-words text-slate-200">
+        {value || "Not provided"}
+      </p>
+    </div>
+  );
+}
+
+// -----------------------------
+// TEMPERATURE
+// -----------------------------
+
+function TemperatureBadge({
+  temperature,
+  large = false,
+}: {
+  temperature: string | null;
+  large?: boolean;
+}) {
+  const value = String(temperature ?? "").toUpperCase();
+
+  const size = large
+    ? "px-5 py-3 text-base"
+    : "px-3 py-1 text-sm";
+
+  if (value === "HOT") {
+    return (
+      <span
+        className={`inline-block rounded-full bg-red-500/15 font-semibold text-red-300 ${size}`}
+      >
+        🔥 HOT
+      </span>
+    );
+  }
+
+  if (value === "WARM") {
+    return (
+      <span
+        className={`inline-block rounded-full bg-yellow-500/15 font-semibold text-yellow-300 ${size}`}
+      >
+        🟡 WARM
+      </span>
+    );
+  }
+
+  if (value === "COLD") {
+    return (
+      <span
+        className={`inline-block rounded-full bg-sky-500/15 font-semibold text-sky-300 ${size}`}
+      >
+        🔵 COLD
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className={`inline-block rounded-full bg-slate-800 text-slate-400 ${size}`}
+    >
+      UNKNOWN
+    </span>
+  );
+}
+
+// -----------------------------
+// ERROR STATE
+// -----------------------------
+
+function ErrorState({
+  title,
+  message,
+  detail,
+}: {
+  title: string;
+  message: string;
+  detail?: string;
+}) {
+  return (
+    <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
+      <div className="mx-auto max-w-6xl">
+        <Link
+          href="/protected"
+          className="text-sm text-slate-400 hover:text-white"
+        >
+          ← Back to Dashboard
+        </Link>
+
+        <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-8">
+          <h1 className="text-2xl font-bold">
+            {title}
+          </h1>
+
+          <p className="mt-2 text-slate-400">
+            {message}
+          </p>
+
+          {detail && (
+            <div className="mt-5 rounded-xl bg-red-950/40 p-4 text-sm text-red-300">
+              {detail}
+            </div>
+          )}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+// -----------------------------
+// DATE
+// -----------------------------
+
+function formatDateTime(value: string) {
+  try {
+    return new Date(value).toLocaleString("en-IN", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  } catch {
+    return "Unknown";
+  }
 }
