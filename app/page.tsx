@@ -114,7 +114,7 @@ export default function Home() {
       </section>
 
       <footer className="relative z-10 mx-auto flex max-w-7xl flex-col gap-3 px-6 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between lg:px-8">
-        <p>© {new Date().getFullYear()} LeadFlow CRM</p>
+        <p>© 2026 LeadFlow CRM</p>
         <div className="flex gap-5">
           <Link href="/auth/login" className="hover:text-white">Sign in</Link>
           <Link href="/auth/sign-up" className="hover:text-white">Create account</Link>
