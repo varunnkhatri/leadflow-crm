@@ -261,42 +261,42 @@ async function LeadPageContent({ params }: PageProps) {
               />
             </div>
 
-<div className="mt-6 space-y-3">
+            <div className="mt-6 space-y-3">
 
-  {customer.phone && (
-    <>
-      <a
-        href={`tel:${customer.phone}`}
-        className="block rounded-xl bg-white px-4 py-3 text-center font-semibold text-black hover:bg-slate-200"
-      >
-        📞 Call Customer
-      </a>
+              {customer.phone && (
+                <>
+                  <a
+                    href={`tel:${customer.phone}`}
+                    className="block rounded-xl bg-white px-4 py-3 text-center font-semibold text-black hover:bg-slate-200"
+                  >
+                    📞 Call Customer
+                  </a>
 
-      <a
-        href={`https://wa.me/${customer.phone.replace(/\D/g, "")}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block rounded-xl border border-green-700 px-4 py-3 text-center font-semibold text-green-300 hover:bg-green-950/30"
-      >
-        💬 WhatsApp Customer
-      </a>
-    </>
-  )}
+                  <a
+                    href={`https://wa.me/${customer.phone.replace(/\D/g, "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block rounded-xl border border-green-700 px-4 py-3 text-center font-semibold text-green-300 hover:bg-green-950/30"
+                  >
+                    💬 WhatsApp Customer
+                  </a>
+                </>
+              )}
 
-  {customer.email && (
-    <a
-      href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
-        customer.email
-      )}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block rounded-xl border border-slate-700 px-4 py-3 text-center font-semibold hover:bg-slate-800"
-    >
-      ✉️ Email Customer
-    </a>
-  )}
+              {customer.email && (
+                <a
+                  href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+                    customer.email
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block rounded-xl border border-slate-700 px-4 py-3 text-center font-semibold hover:bg-slate-800"
+                >
+                  ✉️ Email Customer
+                </a>
+              )}
 
-</div>
+            </div>
           </div>
 
           {/* AI / Lead */}
@@ -335,8 +335,8 @@ async function LeadPageContent({ params }: PageProps) {
                 value={
                   lead.purchase_probability !== null
                     ? `${Math.round(
-                        Number(lead.purchase_probability) * 100
-                      )}%`
+                      Number(lead.purchase_probability) * 100
+                    )}%`
                     : null
                 }
               />
@@ -346,8 +346,8 @@ async function LeadPageContent({ params }: PageProps) {
                 value={
                   lead.confidence !== null
                     ? `${Math.round(
-                        Number(lead.confidence) * 100
-                      )}%`
+                      Number(lead.confidence) * 100
+                    )}%`
                     : null
                 }
               />
@@ -376,8 +376,8 @@ async function LeadPageContent({ params }: PageProps) {
                 value={
                   lead.deal_value !== null
                     ? `₹${Number(
-                        lead.deal_value
-                      ).toLocaleString("en-IN")}`
+                      lead.deal_value
+                    ).toLocaleString("en-IN")}`
                     : null
                 }
               />
