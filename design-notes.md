@@ -1,1 +1,0 @@
-LeadFlow public marketing site: dark editorial minimalism, modern Swiss grid, kinetic neo-brutalist typography, lime accent, structural motion and reduced-motion support.
