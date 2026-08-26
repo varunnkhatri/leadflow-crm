@@ -4,6 +4,13 @@ import { WorkspaceShell } from "@/components/workspace-shell";
 import { WorkspaceModule } from "@/components/workspace-module";
 import { createClient } from "@/lib/supabase/server";
 
+type CustomerRelation = { full_name?: string | null } | { full_name?: string | null }[] | null | undefined;
+
+function customerName(value: CustomerRelation) {
+  if (Array.isArray(value)) return value[0]?.full_name || "Unknown customer";
+  return value?.full_name || "Unknown customer";
+}
+
 export default async function ConversationsPage() {
   await connection();
   const supabase = await createClient();
@@ -18,6 +25,9 @@ export default async function ConversationsPage() {
   const messages = (messagesData ?? []).map((m) => ({ id: m.id as string, conversationId: m.conversation_id as string, direction: m.direction as string, actor: m.actor as string, body: m.body as string | null, createdAt: String(m.created_at) }));
   const lastByConversation = new Map<string, string | null>();
   messages.forEach((m) => lastByConversation.set(m.conversationId, m.body));
-  const conversations = (conversationsData ?? []).map((c) => { const customer = c.customers as unknown as { full_name: string | null } | { full_name: string | null }[] | null; const name = Array.isArray(customer) ? (customer[0]?.full_name || "Unknown customer") : (customer?.full_name || "Unknown customer"); return { id: c.id as string, customerId: c.customer_id as string, name, channel: String(c.channel), status: String(c.status), aiPaused: Boolean(c.ai_paused), lastMessage: lastByConversation.get(c.id) || null, updated: String(c.updated_at) }; });
+  const conversations = (conversationsData ?? []).map((c) => {
+    const raw = (c as unknown as { customers?: unknown }).customers as CustomerRelation;
+    return { id: c.id as string, customerId: c.customer_id as string, name: customerName(raw), channel: String(c.channel), status: String(c.status), aiPaused: Boolean(c.ai_paused), lastMessage: lastByConversation.get(c.id) || null, updated: String(c.updated_at) };
+  });
   return <WorkspaceShell title="CONVERSATIONS" eyebrow="03 / CUSTOMER SIGNAL"><WorkspaceModule kind="conversations" conversations={conversations} messages={messages} /></WorkspaceShell>;
 }
