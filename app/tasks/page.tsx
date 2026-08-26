@@ -1,3 +1,17 @@
+import { connection } from "next/server";
+import { redirect } from "next/navigation";
 import { WorkspaceShell } from "@/components/workspace-shell";
-import { WorkspaceSection } from "@/components/workspace-section";
-export default function TasksPage() { return <WorkspaceShell title="TASKS" eyebrow="04 / NEXT MOVES"><WorkspaceSection kind="Tasks" /></WorkspaceShell>; }
+import { WorkspaceModule } from "@/components/workspace-module";
+import { createClient } from "@/lib/supabase/server";
+
+export default async function TasksPage() {
+  await connection();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+  const { data: profile } = await supabase.from("users").select("business_id").eq("id", user.id).maybeSingle();
+  if (!profile?.business_id) redirect("/protected");
+  const { data } = await supabase.from("followups").select("id, channel, state, scheduled_at, message_body, reason, customers (full_name)").eq("business_id", profile.business_id).order("scheduled_at", { ascending: true }).limit(100);
+  const tasks = (data ?? []).map((t) => ({ id: t.id as string, name: Array.isArray(t.customers) ? (t.customers[0]?.full_name || "Unknown customer") : (t.customers?.full_name || "Unknown customer"), channel: String(t.channel), state: String(t.state), scheduledAt: String(t.scheduled_at), reason: t.reason as string | null, message: t.message_body as string | null }));
+  return <WorkspaceShell title="TASKS" eyebrow="04 / NEXT MOVES"><WorkspaceModule kind="tasks" tasks={tasks} /></WorkspaceShell>;
+}
