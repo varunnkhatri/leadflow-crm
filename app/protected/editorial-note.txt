@@ -1,1 +1,0 @@
-The dashboard remains data-driven; the public site is now the dark editorial showcase. Keep interactions functional and preserve reduced-motion support.
