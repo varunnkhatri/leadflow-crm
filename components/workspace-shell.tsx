@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ArrowUpRight, BarChart3, Bot, BriefcaseBusiness, CheckSquare, ChevronRight, Command, ContactRound, Inbox, LayoutDashboard, Megaphone, MessageSquare, Search, Settings2, Sparkles, UsersRound } from "lucide-react";
+import { ArrowUpRight, BarChart3, Bot, BriefcaseBusiness, CheckSquare, ChevronRight, Command, ContactRound, Inbox, LayoutDashboard, Megaphone, MessageSquare, Search, Sparkles, UsersRound } from "lucide-react";
 
 const items = [
   ["Dashboard", "/protected", LayoutDashboard],
@@ -28,14 +27,14 @@ export function WorkspaceShell({ title, eyebrow, children }: { title: string; ey
     <main className="leadflow-page">
       <div className="leadflow-shell px-4 sm:px-6 lg:px-10">
         <header className="leadflow-topline flex min-h-20 items-center justify-between gap-6">
-          <Link href="/" className="flex items-center gap-3">
+          <a href="/" className="flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center bg-[#f4f0e7] text-sm font-black text-black">L</span>
             <span className="text-sm font-black tracking-[.14em]">LEADFLOW</span>
             <span className="hidden text-[9px] uppercase tracking-[.28em] text-white/35 sm:block">REVENUE OS / 01</span>
-          </Link>
+          </a>
           <div className="flex items-center gap-3">
-            <Link href="/auth/logout" className="hidden text-[10px] font-bold uppercase tracking-[.16em] text-white/45 hover:text-white sm:block">Sign out</Link>
-            <Link href="/protected" className="leadflow-button leadflow-button-primary">Workspace <ArrowUpRight size={14}/></Link>
+            <a href="/auth/logout" className="hidden text-[10px] font-bold uppercase tracking-[.16em] text-white/45 hover:text-white sm:block">Sign out</a>
+            <a href="/protected" className="leadflow-button leadflow-button-primary">Workspace <ArrowUpRight size={14}/></a>
           </div>
         </header>
 
@@ -49,7 +48,7 @@ export function WorkspaceShell({ title, eyebrow, children }: { title: string; ey
             <nav className="space-y-1">
               {filtered.map(([label, href, Icon]) => {
                 const active = pathname === href || (href !== "/protected" && pathname.startsWith(href));
-                return <Link key={href} href={href} data-active={active} className="workspace-nav-link flex items-center gap-3 px-3 py-3 text-xs font-semibold text-white/45"><Icon size={15}/><span>{label}</span>{label === "AI Agents" && <span className="ml-auto text-[9px] text-[#b7ff58]">03</span>} {active && <ChevronRight size={13} className="ml-auto"/>}</Link>;
+                return <a key={href} href={href} data-active={active} className="workspace-nav-link flex items-center gap-3 px-3 py-3 text-xs font-semibold text-white/45"><Icon size={15}/><span>{label}</span>{label === "AI Agents" && <span className="ml-auto text-[9px] text-[#b7ff58]">03</span>} {active && <ChevronRight size={13} className="ml-auto"/>}</a>;
               })}
             </nav>
             <div className="mt-10 border-t border-white/10 pt-6">
