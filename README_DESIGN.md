@@ -1,1 +1,0 @@
-Editorial visual direction is implemented in app/page.tsx and app/globals.css. This file can be removed after handoff.
