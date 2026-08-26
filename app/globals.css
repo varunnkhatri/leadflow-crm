@@ -4,89 +4,88 @@
 
 @layer base {
   :root {
-    --background: 0 0% 4%;
+    --background: 0 0% 3%;
     --foreground: 40 25% 94%;
-    --card: 0 0% 5%;
+    --card: 0 0% 4%;
     --card-foreground: 40 25% 94%;
-    --popover: 0 0% 5%;
+    --popover: 0 0% 4%;
     --popover-foreground: 40 25% 94%;
-    --primary: 72 100% 75%;
-    --primary-foreground: 0 0% 4%;
-    --secondary: 0 0% 10%;
+    --primary: 78 100% 70%;
+    --primary-foreground: 0 0% 3%;
+    --secondary: 0 0% 7%;
     --secondary-foreground: 40 25% 94%;
-    --muted: 0 0% 10%;
+    --muted: 0 0% 7%;
     --muted-foreground: 0 0% 55%;
-    --accent: 72 100% 75%;
-    --accent-foreground: 0 0% 4%;
-    --destructive: 0 70% 55%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14%;
-    --input: 0 0% 14%;
-    --ring: 72 100% 75%;
+    --accent: 78 100% 70%;
+    --accent-foreground: 0 0% 3%;
+    --border: 0 0% 15%;
+    --input: 0 0% 12%;
+    --ring: 78 100% 70%;
     --radius: 0rem;
   }
-}
-
-@layer base {
   * { @apply border-border; }
   html { scroll-behavior: smooth; }
-  body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-geist-sans), Inter, ui-sans-serif, system-ui, sans-serif;
-    letter-spacing: -0.012em;
-  }
+  body { @apply bg-background text-foreground; font-family: var(--font-geist-sans), Inter, ui-sans-serif, system-ui, sans-serif; letter-spacing: -0.012em; }
 }
 
 @keyframes editorialMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @keyframes editorialGrain { 0%,100%{transform:translate(0,0)} 20%{transform:translate(-2%,1%)} 40%{transform:translate(1%,-2%)} 60%{transform:translate(2%,2%)} 80%{transform:translate(-1%,-1%)} }
-@keyframes orbit { from { transform:rotate(0deg) translateX(18px) rotate(0deg); } to { transform:rotate(360deg) translateX(18px) rotate(-360deg); } }
-@keyframes orbitReverse { from { transform:rotate(360deg) translateX(12px) rotate(-360deg); } to { transform:rotate(0deg) translateX(12px) rotate(0deg); } }
 @keyframes revealUp { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
-@keyframes signalPulse { 0%,100%{opacity:.35;transform:scaleY(.75)} 50%{opacity:1;transform:scaleY(1)} }
-@keyframes customerGlow { 0%,100%{opacity:.55;transform:translate3d(0,0,0) scale(1)} 50%{opacity:.95;transform:translate3d(2%, -1%,0) scale(1.04)} }
 @keyframes softFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
-
 .editorial-marquee { animation: editorialMarquee 22s linear infinite; }
 .editorial-grain { background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E"); background-size:180px 180px; animation:editorialGrain .25s steps(2) infinite; }
-.motion-orbit { animation:orbit 13s linear infinite; }
-.motion-orbit-reverse { animation:orbitReverse 9s linear infinite; }
 .reveal-up { animation:revealUp .8s cubic-bezier(.2,.8,.2,1) both; }
-.h-16 > span { animation:signalPulse 1.15s ease-in-out infinite; transform-origin:bottom; }
 
-/* LeadFlow customer-facing palette: electric lime moving through mint/cyan instead of flat green. */
-.customer-gradient {
-  background: linear-gradient(115deg, #d9ff62 0%, #9dff75 34%, #63f5c0 68%, #58d8ff 100%);
-  background-size: 180% 180%;
-  animation: customerGlow 7s ease-in-out infinite;
-}
-.customer-gradient-text {
-  background: linear-gradient(115deg, #e6ff86 0%, #a6ff77 35%, #62f4c2 68%, #62d8ff 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-}
-.customer-border { border-color: rgba(166,255,119,.28) !important; box-shadow: 0 0 0 1px rgba(166,255,119,.05), 0 18px 60px rgba(70,255,180,.07); }
+/* The homepage is the visual source of truth: black, warm white, editorial lime, restrained mint/cyan. */
+.customer-gradient { background: linear-gradient(115deg,#d9ff62 0%,#a6ff77 36%,#63f5c0 68%,#58d8ff 100%); background-size:180% 180%; }
+.customer-gradient-text { background:linear-gradient(115deg,#e6ff86 0%,#a6ff77 35%,#62f4c2 68%,#62d8ff 100%); background-clip:text; -webkit-background-clip:text; color:transparent; }
 
-/* Bring the existing dashboard's violet accents into the same brand family without rewriting its data layer. */
-main [class*="text-violet-"] { color: #a6ff77 !important; }
-main [class*="text-fuchsia-"] { color: #74f4c5 !important; }
-main [class*="border-violet-"] { border-color: rgba(166,255,119,.22) !important; }
-main [class*="border-fuchsia-"] { border-color: rgba(116,244,197,.20) !important; }
-main [class*="bg-violet-500"] { background-color: rgba(166,255,119,.10) !important; }
-main [class*="bg-violet-600"] { background-color: rgba(166,255,119,.10) !important; }
-main [class*="bg-fuchsia-500"] { background-color: rgba(116,244,197,.10) !important; }
-main [class*="shadow-violet-"] { --tw-shadow-color: rgba(166,255,119,.18) !important; }
+/* Product-wide editorial primitives. */
+.leadflow-page { min-height:100vh; background:#050505; color:#f5f2e9; position:relative; overflow:hidden; }
+.leadflow-page::before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.14; background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px); background-size:48px 48px; mask-image:linear-gradient(to bottom,black,transparent 85%); }
+.leadflow-shell { position:relative; z-index:1; max-width:1500px; margin:0 auto; }
+.leadflow-topline { border-bottom:1px solid rgba(255,255,255,.12); }
+.leadflow-kicker { color:#b7ff58; text-transform:uppercase; letter-spacing:.28em; font-size:10px; font-weight:800; }
+.leadflow-title { font-weight:900; letter-spacing:-.055em; line-height:.92; }
+.leadflow-accent { color:#b7ff58; }
+.leadflow-panel { border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.025); border-radius:0 !important; box-shadow:none; }
+.leadflow-panel:hover { border-color:rgba(183,255,88,.32); }
+.leadflow-button { display:inline-flex; align-items:center; justify-content:center; gap:.65rem; min-height:44px; padding:.75rem 1.1rem; border:1px solid rgba(255,255,255,.22); border-radius:0; text-transform:uppercase; letter-spacing:.12em; font-size:11px; font-weight:800; transition:.2s ease; }
+.leadflow-button:hover { border-color:#b7ff58; transform:translateY(-1px); }
+.leadflow-button-primary { background:#f4f0e7; color:#070707; border-color:#f4f0e7; }
+.leadflow-button-primary:hover { background:#b7ff58; border-color:#b7ff58; }
 
-/* Turn the dashboard's main action surfaces into a recognizable gradient language. */
-main button[class*="violet"], main a[class*="violet"], main [class*="from-violet-"] {
-  background-image: linear-gradient(115deg, rgba(217,255,98,.96), rgba(116,244,197,.96), rgba(88,216,255,.96)) !important;
-  color: #06100b !important;
-}
+/* Restyle the existing dashboard without changing its data/query layer. */
+main.min-h-screen { background:#050505 !important; }
+main.min-h-screen .bg-\[\#030712\], main.min-h-screen .bg-\[\#050914\], main.min-h-screen .bg-\[\#080e1b\] { background:#080808 !important; }
+main.min-h-screen [class*="rounded-2xl"], main.min-h-screen [class*="rounded-xl"] { border-radius:0 !important; }
+main.min-h-screen [class*="bg-violet-"], main.min-h-screen [class*="from-violet-"], main.min-h-screen [class*="to-violet-"] { --tw-bg-opacity:.06; }
+main.min-h-screen [class*="text-violet-"] { color:#b7ff58 !important; }
+main.min-h-screen [class*="text-cyan-"] { color:#72e8cf !important; }
+main.min-h-screen [class*="border-violet-"] { border-color:rgba(183,255,88,.22) !important; }
+main.min-h-screen [class*="shadow-violet-"] { --tw-shadow-color:rgba(183,255,88,.12) !important; }
+main.min-h-screen [class*="from-violet-"][class*="to-cyan-"] { background-image:linear-gradient(115deg,#b7ff58,#72e8cf) !important; }
+main.min-h-screen aside { background:#070707 !important; }
+main.min-h-screen aside nav a > div, main.min-h-screen aside nav > div { border-radius:0 !important; }
+main.min-h-screen aside nav a > div[class*="bg-violet"], main.min-h-screen aside nav > div[class*="bg-violet"] { background:rgba(183,255,88,.09) !important; border-left:2px solid #b7ff58; }
+main.min-h-screen aside nav span[class*="text-violet"] { color:#b7ff58 !important; }
+main.min-h-screen header { border-color:rgba(255,255,255,.12) !important; }
+main.min-h-screen header button { border-radius:0 !important; }
+main.min-h-screen header button[class*="bg-violet"] { background:#b7ff58 !important; color:#050505 !important; border-color:#b7ff58 !important; }
+main.min-h-screen .pointer-events-none { opacity:.55; }
 
-/* The starter shell used to leave a large white header around the product. */
-main.min-h-screen { background: #050505; }
+/* Auth pages: same homepage composition, not a generic centered SaaS card. */
+.leadflow-auth { min-height:100svh; background:#050505; color:#f5f2e9; position:relative; overflow:hidden; }
+.leadflow-auth::before { content:""; position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px); background-size:48px 48px; opacity:.55; mask-image:linear-gradient(to bottom,black,transparent 90%); }
+.leadflow-auth .leadflow-auth-card { position:relative; z-index:1; width:min(100%,460px); border:1px solid rgba(255,255,255,.14); background:#080808; border-radius:0; padding:32px; }
+.leadflow-auth [data-slot="card"], .leadflow-auth .border-border\/60 { border-radius:0 !important; background:#080808 !important; border-color:rgba(255,255,255,.14) !important; box-shadow:none !important; }
+.leadflow-auth button[type="submit"] { border-radius:0 !important; background:#f4f0e7 !important; color:#050505 !important; font-weight:800; text-transform:uppercase; letter-spacing:.12em; }
+.leadflow-auth input { border-radius:0 !important; background:#050505 !important; border-color:rgba(255,255,255,.16) !important; color:#fff !important; }
+.leadflow-auth input:focus { border-color:#b7ff58 !important; box-shadow:0 0 0 1px #b7ff58 !important; }
 
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior:auto; }
-  .editorial-marquee,.editorial-grain,.motion-orbit,.motion-orbit-reverse,.reveal-up,.h-16 > span,.customer-gradient { animation:none !important; }
-}
+/* New workspace pages. */
+.workspace-nav-link { border-left:2px solid transparent; transition:.18s ease; }
+.workspace-nav-link:hover { color:#fff; background:rgba(255,255,255,.035); }
+.workspace-nav-link[data-active="true"] { color:#b7ff58; background:rgba(183,255,88,.075); border-left-color:#b7ff58; }
+
+@media (prefers-reduced-motion: reduce) { html{scroll-behavior:auto}.editorial-marquee,.editorial-grain,.reveal-up{animation:none !important} }
