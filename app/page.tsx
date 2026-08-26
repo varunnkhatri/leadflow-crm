@@ -8,49 +8,80 @@ export default async function Home() {
   if (user) redirect("/protected");
 
   return (
-    <main className="min-h-screen overflow-hidden bg-slate-950 text-white">
-      <div className="absolute inset-0 -z-0 bg-[radial-gradient(circle_at_20%_10%,rgba(37,99,235,0.22),transparent_32%),radial-gradient(circle_at_85%_30%,rgba(124,58,237,0.18),transparent_30%)]" />
+    <main className="min-h-screen overflow-x-hidden bg-[#070707] text-[#f4f1e8] selection:bg-lime-300 selection:text-black">
+      <div className="pointer-events-none fixed inset-0 z-50 editorial-grain opacity-20" />
 
-      <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-lg font-bold shadow-lg shadow-blue-600/25">L</span>
-          <span className="text-xl font-semibold tracking-tight">LeadFlow</span>
-          <span className="hidden rounded-full border border-blue-400/20 bg-blue-400/10 px-2.5 py-1 text-xs font-medium text-blue-300 sm:inline">AI CRM</span>
+      <nav className="relative z-20 mx-auto flex max-w-[1500px] items-center justify-between border-b border-white/10 px-5 py-5 sm:px-8 lg:px-12">
+        <Link href="/" className="group flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center bg-[#f4f1e8] text-sm font-black text-black transition group-hover:rotate-6">L</span>
+          <span className="font-bold tracking-[-0.03em]">LEADFLOW</span>
+          <span className="hidden border-l border-white/15 pl-3 text-[10px] uppercase tracking-[0.25em] text-white/40 sm:block">Revenue OS / 01</span>
         </Link>
-        <div className="flex items-center gap-3">
-          <Link href="/auth/login" className="rounded-lg px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">Sign in</Link>
-          <Link href="/auth/sign-up" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-slate-200">Get started</Link>
+        <div className="flex items-center gap-2 sm:gap-5">
+          <Link href="/auth/login" className="rounded-full px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-white/60 transition hover:text-white">Sign in</Link>
+          <Link href="/auth/sign-up" className="rounded-full bg-lime-300 px-4 py-2.5 text-xs font-black uppercase tracking-[0.1em] text-black transition hover:-translate-y-0.5 hover:bg-lime-200 active:translate-y-0">Start free</Link>
         </div>
       </nav>
 
-      <section className="relative z-10 mx-auto grid max-w-7xl gap-14 px-6 pb-20 pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8 lg:pb-28 lg:pt-24">
-        <div>
-          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/10 px-3 py-1.5 text-sm text-blue-300"><span className="h-2 w-2 rounded-full bg-emerald-400" />Intelligent lead management</div>
-          <h1 className="max-w-3xl text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">Turn every enquiry into a <span className="text-blue-400">sales opportunity.</span></h1>
-          <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-400 sm:text-xl">LeadFlow brings your customer enquiries, AI lead scoring and sales pipeline together in one focused CRM. Know who needs attention and what to do next.</p>
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <Link href="/auth/sign-up" className="inline-flex h-12 items-center justify-center rounded-xl bg-blue-600 px-6 font-semibold shadow-xl shadow-blue-600/20 transition hover:bg-blue-500 active:scale-[.99]">Start managing leads</Link>
-            <Link href="/auth/login" className="inline-flex h-12 items-center justify-center rounded-xl border border-slate-700 bg-white/5 px-6 font-semibold text-slate-200 transition hover:bg-white/10 active:scale-[.99]">Sign in to CRM →</Link>
+      <section className="relative mx-auto max-w-[1500px] px-5 pb-10 pt-10 sm:px-8 sm:pt-16 lg:px-12 lg:pb-16 lg:pt-20">
+        <div className="absolute right-[8%] top-16 hidden text-[10px] uppercase tracking-[0.3em] text-white/25 lg:block">AI / SALES / OPERATIONS / 2026</div>
+        <div className="grid gap-10 lg:grid-cols-[1.12fr_.88fr] lg:items-end">
+          <div className="reveal-up">
+            <p className="mb-6 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.3em] text-lime-300"><span className="h-px w-10 bg-lime-300" />The intelligent lead desk</p>
+            <h1 className="max-w-5xl text-[clamp(4.2rem,10vw,10rem)] font-black uppercase leading-[.78] tracking-[-0.075em]">Leads<br /><span className="text-white/25">in.</span><br /><span className="text-lime-300">Revenue</span><br />out.</h1>
           </div>
-          <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500"><span>✓ AI-assisted scoring</span><span>✓ Centralized customer data</span><span>✓ Real-time lead pipeline</span></div>
+          <div className="reveal-up pb-2 lg:pb-3">
+            <p className="max-w-md text-lg leading-7 text-white/55 sm:text-xl">A CRM that treats every enquiry like a live opportunity — scored, routed and ready for the next move.</p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link href="/auth/sign-up" className="inline-flex min-h-12 items-center gap-3 bg-[#f4f1e8] px-5 text-sm font-black uppercase tracking-[0.08em] text-black transition hover:-translate-y-1">Build your pipeline <span className="text-lg">↗</span></Link>
+              <Link href="/auth/login" className="inline-flex min-h-12 items-center border border-white/15 px-5 text-sm font-bold uppercase tracking-[0.08em] text-white/70 transition hover:border-white/40 hover:text-white">Enter workspace</Link>
+            </div>
+          </div>
         </div>
 
-        <div className="relative">
-          <div className="absolute -inset-6 rounded-[2rem] bg-blue-600/10 blur-3xl" />
-          <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/90 p-5 shadow-2xl shadow-black/40 backdrop-blur">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-5"><div><p className="text-sm text-slate-500">Dashboard</p><p className="mt-1 font-semibold">Lead overview</p></div><span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-300">Live</span></div>
-            <div className="grid grid-cols-2 gap-3 py-5 sm:grid-cols-4"><Stat label="Total leads" value="128" /><Stat label="Hot" value="24" accent="text-red-400" /><Stat label="Warm" value="41" accent="text-amber-400" /><Stat label="Open" value="86" accent="text-blue-400" /></div>
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/70"><div className="flex items-center justify-between border-b border-slate-800 px-4 py-3"><span className="text-sm font-medium">Recent leads</span><span className="text-xs text-slate-500">AI scored</span></div><LeadPreview name="Restaurant website" score="90" temp="HOT" /><LeadPreview name="Commercial property" score="76" temp="WARM" /><LeadPreview name="Marketing enquiry" score="52" temp="COLD" /></div>
+        <div className="mt-14 grid gap-px border border-white/10 bg-white/10 md:grid-cols-12">
+          <div className="relative min-h-[420px] overflow-hidden bg-[#101010] md:col-span-8">
+            <div className="absolute inset-0 opacity-60 [background-image:linear-gradient(rgba(255,255,255,.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.055)_1px,transparent_1px)] [background-size:48px_48px]" />
+            <div className="absolute -right-20 top-12 h-72 w-72 rounded-full border border-lime-300/30 motion-orbit" />
+            <div className="absolute right-16 top-24 h-40 w-40 rounded-full border border-white/20 motion-orbit-reverse" />
+            <div className="absolute left-8 top-8 text-[9px] uppercase tracking-[.3em] text-white/30">Live signal / 00:24:18</div>
+            <div className="absolute bottom-8 left-8 right-8">
+              <div className="mb-3 flex items-end justify-between"><div><p className="text-[10px] uppercase tracking-[.25em] text-white/35">Pipeline velocity</p><p className="mt-1 text-4xl font-black tracking-tight sm:text-6xl">+38.4%</p></div><span className="mb-1 rounded-full border border-lime-300/20 bg-lime-300/10 px-3 py-1 text-[10px] font-bold text-lime-300">LIVE</span></div>
+              <div className="flex h-16 items-end gap-1 overflow-hidden">{Array.from({ length: 42 }).map((_, i) => <span key={i} className="min-w-[5px] flex-1 bg-lime-300/70" style={{ height: `${18 + ((i * 37) % 70)}%`, animationDelay: `${i * -80}ms` }} />)}</div>
+            </div>
+          </div>
+          <div className="grid bg-[#f4f1e8] text-black md:col-span-4">
+            <div className="border-b border-black/15 p-6 sm:p-8"><p className="text-[10px] font-black uppercase tracking-[.25em] text-black/40">01 / Prioritise</p><p className="mt-14 text-5xl font-black leading-none tracking-[-.06em]">Know<br />who matters.</p></div>
+            <div className="p-6 sm:p-8"><p className="text-[10px] font-black uppercase tracking-[.25em] text-black/40">02 / Act</p><p className="mt-14 text-5xl font-black leading-none tracking-[-.06em]">Know<br />what next.</p></div>
           </div>
         </div>
       </section>
 
-      <section className="relative z-10 border-t border-slate-800/80 bg-slate-950/60"><div className="mx-auto grid max-w-7xl gap-8 px-6 py-14 sm:grid-cols-3 lg:px-8"><Feature title="Capture" text="Bring enquiries into one structured customer record instead of losing them across inboxes and chats." /><Feature title="Understand" text="Use AI-assisted intent, urgency and lead scoring to prioritize the opportunities that matter." /><Feature title="Act" text="Give your team a clear pipeline, customer context and recommended next action for every lead." /></div></section>
-      <footer className="relative z-10 mx-auto flex max-w-7xl flex-col gap-3 px-6 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between lg:px-8"><p>© 2026 LeadFlow CRM</p><div className="flex gap-5"><Link href="/auth/login" className="hover:text-white">Sign in</Link><Link href="/auth/sign-up" className="hover:text-white">Create account</Link></div></footer>
+      <div className="overflow-hidden border-y border-white/10 bg-lime-300 py-3 text-black"><div className="editorial-marquee flex min-w-max gap-10 whitespace-nowrap text-sm font-black uppercase tracking-[.18em]">{Array.from({ length: 8 }).map((_, i) => <span key={i}>Capture → Score → Route → Convert → Capture → Score → Route → Convert →</span>)}</div></div>
+
+      <section className="mx-auto max-w-[1500px] px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
+        <div className="grid gap-px border border-white/10 bg-white/10 lg:grid-cols-12">
+          <div className="bg-[#070707] p-6 sm:p-10 lg:col-span-7 lg:p-14"><p className="text-[10px] font-bold uppercase tracking-[.3em] text-lime-300">The operating system</p><h2 className="mt-8 max-w-3xl text-5xl font-black uppercase leading-[.9] tracking-[-.06em] sm:text-7xl">Less dashboard.<br /><span className="text-white/30">More direction.</span></h2><p className="mt-8 max-w-xl text-base leading-7 text-white/45">LeadFlow turns messy customer enquiries into a clear sequence of decisions. Capture the signal, understand intent, and give your team the next move.</p></div>
+          <div className="grid bg-[#111] sm:grid-cols-2 lg:col-span-5 lg:grid-cols-1">
+            <EditorialCard n="01" title="Capture" text="One customer record. Every enquiry. No lost context." />
+            <EditorialCard n="02" title="Understand" text="Score intent, urgency and buying probability automatically." />
+            <EditorialCard n="03" title="Move" text="Put the right opportunity in front of the right person." />
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1500px] px-5 pb-20 sm:px-8 lg:px-12 lg:pb-28">
+        <div className="grid gap-px border border-white/10 bg-white/10 md:grid-cols-3">
+          <Stat label="Leads organised" value="10×" />
+          <Stat label="Decisions surfaced" value="24/7" accent />
+          <Stat label="Attention wasted" value="↓" accent />
+        </div>
+      </section>
+
+      <footer className="border-t border-white/10 px-5 py-8 sm:px-8 lg:px-12"><div className="mx-auto flex max-w-[1500px] flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-black tracking-tight">LEADFLOW</p><p className="mt-1 text-[10px] uppercase tracking-[.25em] text-white/30">AI revenue operating system</p></div><div className="flex gap-5 text-[10px] font-bold uppercase tracking-[.2em] text-white/40"><Link href="/auth/login" className="transition hover:text-white">Sign in</Link><Link href="/auth/sign-up" className="transition hover:text-white">Create account</Link></div></div></footer>
     </main>
   );
 }
 
-function Stat({ label, value, accent = "text-white" }: { label: string; value: string; accent?: string }) { return <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-3"><p className="text-[11px] text-slate-500">{label}</p><p className={`mt-1 text-2xl font-bold ${accent}`}>{value}</p></div>; }
-function LeadPreview({ name, score, temp }: { name: string; score: string; temp: string }) { const tempClass = temp === "HOT" ? "text-red-400 bg-red-400/10" : temp === "WARM" ? "text-amber-400 bg-amber-400/10" : "text-sky-400 bg-sky-400/10"; return <div className="flex items-center justify-between gap-3 border-b border-slate-800 px-4 py-4 last:border-b-0"><div className="min-w-0"><p className="truncate text-sm font-medium">{name}</p><p className="mt-1 text-xs text-slate-500">Customer enquiry</p></div><div className="flex items-center gap-2"><span className={`rounded-full px-2 py-1 text-[10px] font-semibold ${tempClass}`}>{temp}</span><span className="w-8 text-right text-sm font-bold">{score}</span></div></div>; }
-function Feature({ title, text }: { title: string; text: string }) { return <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6"><p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-400">{title}</p><p className="mt-3 leading-7 text-slate-400">{text}</p></div>; }
+function EditorialCard({ n, title, text }: { n: string; title: string; text: string }) { return <div className="group border-b border-white/10 p-6 transition hover:bg-white/[.03] sm:p-8"><div className="flex items-start justify-between"><span className="text-[10px] font-bold text-lime-300">{n}</span><span className="text-white/20 transition group-hover:translate-x-1 group-hover:text-lime-300">↗</span></div><h3 className="mt-12 text-3xl font-black uppercase tracking-[-.04em]">{title}</h3><p className="mt-3 max-w-sm text-sm leading-6 text-white/40">{text}</p></div>; }
+function Stat({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) { return <div className="bg-[#0d0d0d] p-7 sm:p-10"><p className="text-[10px] font-bold uppercase tracking-[.25em] text-white/30">{label}</p><p className={`mt-10 text-6xl font-black tracking-[-.07em] sm:text-8xl ${accent ? "text-lime-300" : ""}`}>{value}</p></div>; }
