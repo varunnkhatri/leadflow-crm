@@ -3,6 +3,17 @@ import { NextResponse, type NextRequest } from "next/server";
 import { hasEnvVars } from "../utils";
 
 export async function updateSession(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // API routes must reach their own handlers directly. Do this before creating
+  // the Supabase server client or calling getClaims(), otherwise every API
+  // request can be blocked by the auth middleware's session lookup. The login
+  // endpoint especially must be able to call Supabase Auth without first
+  // requiring an existing session.
+  if (pathname.startsWith("/api/")) {
+    return NextResponse.next();
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   if (!hasEnvVars) {
@@ -30,13 +41,6 @@ export async function updateSession(request: NextRequest) {
 
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
-  const pathname = request.nextUrl.pathname;
-
-  // API routes must reach their own handlers. In particular, the login
-  // endpoint cannot be redirected to /auth/login before it can authenticate.
-  if (pathname.startsWith("/api/")) {
-    return supabaseResponse;
-  }
 
   if (
     pathname !== "/" &&
