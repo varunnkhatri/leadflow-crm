@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
+import { login } from "@/app/auth/login/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,7 +14,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function LoginForm({
@@ -26,26 +26,18 @@ export function LoginForm({
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
-  const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const supabase = createClient();
     setIsLoading(true);
     setError(null);
     setSuccess(null);
 
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
-      if (error) throw error;
-      router.push("/protected");
-      router.refresh();
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
-    } finally {
+    const formData = new FormData(e.currentTarget);
+    const result = await login(formData);
+
+    if (result?.error) {
+      setError(result.error);
       setIsLoading(false);
     }
   };
@@ -96,6 +88,7 @@ export function LoginForm({
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   autoComplete="email"
                   placeholder="you@company.com"
@@ -116,6 +109,7 @@ export function LoginForm({
                 </div>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
                   autoComplete="current-password"
                   required
