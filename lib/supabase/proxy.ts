@@ -3,18 +3,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { hasEnvVars } from "../utils";
 
 export async function updateSession(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
-
-  // API routes must reach their own handlers directly. Do this before creating
-  // the Supabase server client or calling getClaims(), otherwise every API
-  // request can be blocked by the auth middleware's session lookup. The login
-  // endpoint especially must be able to call Supabase Auth without first
-  // requiring an existing session.
-  if (pathname.startsWith("/api/")) {
-    return NextResponse.next();
-  }
-
-  let supabaseResponse = NextResponse.next({ request });
+  let supabaseResponse = NextResponse.next({
+    request,
+  });
 
   if (!hasEnvVars) {
     return supabaseResponse;
@@ -29,24 +20,30 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) => {
-            supabaseResponse.cookies.set(name, value, options);
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value),
+          );
+          supabaseResponse = NextResponse.next({
+            request,
           });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options),
+          );
         },
       },
     },
   );
 
+  // Keep this immediately adjacent to the client creation so Supabase can
+  // refresh the browser session before protected server-rendered pages run.
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
 
   if (
-    pathname !== "/" &&
+    request.nextUrl.pathname !== "/" &&
     !user &&
-    !pathname.startsWith("/login") &&
-    !pathname.startsWith("/auth")
+    !request.nextUrl.pathname.startsWith("/login") &&
+    !request.nextUrl.pathname.startsWith("/auth")
   ) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
