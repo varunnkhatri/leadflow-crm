@@ -28,24 +28,29 @@ export function LoginForm({
   const [isResending, setIsResending] = useState(false);
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const supabase = createClient();
     setIsLoading(true);
     setError(null);
     setSuccess(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ email: email.trim(), password }),
       });
-      if (error) throw error;
-      router.push("/protected");
+
+      const result = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(result?.error || "Unable to sign in. Please try again.");
+      }
+
+      router.replace("/protected");
       router.refresh();
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -96,6 +101,7 @@ export function LoginForm({
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   autoComplete="email"
                   placeholder="you@company.com"
@@ -116,6 +122,7 @@ export function LoginForm({
                 </div>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
                   autoComplete="current-password"
                   required
