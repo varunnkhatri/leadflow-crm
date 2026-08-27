@@ -24,21 +24,17 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
     setSuccess(null);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({ email: email.trim(), password }),
+      // Authenticate directly with the Supabase browser client. This lets
+      // @supabase/ssr persist the session in the browser's cookie storage,
+      // which is then available to the server-rendered protected workspace.
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
       });
 
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(typeof result?.error === "string" ? result.error : "Unable to sign in. Please try again.");
-      }
+      if (error) throw error;
 
-      // The server route writes the authenticated Supabase cookies directly to
-      // the browser response. A full navigation then sends those cookies to the
-      // protected server-rendered workspace.
       window.location.assign("/protected");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
