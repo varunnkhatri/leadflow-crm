@@ -24,21 +24,23 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
     setSuccess(null);
 
     try {
-      const supabase = createClient();
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        cache: "no-store",
+        body: JSON.stringify({ email: email.trim(), password }),
       });
 
-      if (signInError) throw signInError;
-      if (!data.user || !data.session) {
-        throw new Error("Supabase did not create a login session. Please try again.");
+      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+
+      if (!response.ok) {
+        throw new Error(payload?.error || "Unable to sign in. Please try again.");
       }
 
-      window.location.assign("/protected");
+      window.location.replace("/protected");
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Unable to sign in. Please try again.";
-      setError(message);
+      setError(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
       setIsLoading(false);
     }
   };
