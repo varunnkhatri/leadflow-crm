@@ -16,20 +16,11 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet, headers) {
-          // Keep the request cookies in sync so the current request can see
-          // the refreshed session immediately.
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-
-          // Re-create the response after mutating request cookies. This is
-          // important with Next.js Proxy + @supabase/ssr; otherwise the
-          // browser can receive stale/missing auth cookies and bounce back
-          // to /auth/login after a successful sign-in.
           supabaseResponse = NextResponse.next({ request });
-
           cookiesToSet.forEach(({ name, value, options }) => {
             supabaseResponse.cookies.set(name, value, options);
           });
-
           Object.entries(headers ?? {}).forEach(([name, value]) => {
             if (value) supabaseResponse.headers.set(name, value);
           });
@@ -41,12 +32,12 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isAuthPath = pathname.startsWith("/auth") || pathname.startsWith("/api/auth");
 
-  // Authentication pages/endpoints must be reachable without a session.
-  if (!isAuthPath) {
+  // Let /protected perform the authoritative server-side getUser() check.
+  // This avoids a proxy-level getClaims() decision bouncing a valid login
+  // back to /auth/login before the page can read the session cookie.
+  if (!isAuthPath && pathname !== "/" && pathname !== "/protected") {
     const { data } = await supabase.auth.getClaims();
-    const user = data?.claims;
-
-    if (pathname !== "/" && !user) {
+    if (!data?.claims) {
       const url = request.nextUrl.clone();
       url.pathname = "/auth/login";
       return NextResponse.redirect(url);
