@@ -2,7 +2,6 @@
 
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
-import { login } from "@/app/auth/login/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function LoginForm({
@@ -26,6 +26,7 @@ export function LoginForm({
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,11 +34,23 @@ export function LoginForm({
     setError(null);
     setSuccess(null);
 
-    const formData = new FormData(e.currentTarget);
-    const result = await login(formData);
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
 
-    if (result?.error) {
-      setError(result.error);
+      const result = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(result?.error || "Unable to sign in. Please try again.");
+      }
+
+      router.replace("/protected");
+      router.refresh();
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
       setIsLoading(false);
     }
   };
