@@ -24,20 +24,19 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
     setSuccess(null);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        cache: "no-store",
-        body: JSON.stringify({ email: email.trim(), password }),
+      const supabase = createClient();
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
       });
 
-      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-
-      if (!response.ok) {
-        throw new Error(payload?.error || "Unable to sign in. Please try again.");
+      if (signInError) throw signInError;
+      if (!data.user || !data.session) {
+        throw new Error("Sign in succeeded but no active session was created. Please try again.");
       }
 
+      // The browser Supabase client owns the auth cookie/session here.
+      // Redirect only after signInWithPassword has completed successfully.
       window.location.replace("/protected");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
