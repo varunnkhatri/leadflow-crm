@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
@@ -17,7 +16,6 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
-  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,9 +35,6 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
         throw new Error("Supabase did not create a login session. Please try again.");
       }
 
-      // The browser client stores the session in the SSR cookie storage.
-      // The fixed Proxy now synchronizes those cookies with the request and
-      // response before /protected is rendered.
       window.location.assign("/protected");
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Unable to sign in. Please try again.";
@@ -121,8 +116,6 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
               Don&apos;t have an account? <Link href="/auth/sign-up" className="font-medium text-foreground underline underline-offset-4">Create one</Link>
             </div>
           </form>
-        </CardContent>
-      </form>
         </CardContent>
       </Card>
     </div>
