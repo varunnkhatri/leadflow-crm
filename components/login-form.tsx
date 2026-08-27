@@ -24,21 +24,21 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
     setSuccess(null);
 
     try {
-      const supabase = createClient();
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ email: email.trim(), password }),
       });
-      if (signInError) throw signInError;
-      if (!data.session || !data.user) throw new Error("Sign in succeeded but no session was created. Please try again.");
 
-      // Confirm the browser client can immediately read the newly-created session
-      // before crossing the server boundary to an authenticated route.
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) throw sessionError;
-      if (!sessionData.session) throw new Error("Your session could not be saved. Please try again.");
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(typeof result?.error === "string" ? result.error : "Unable to sign in. Please try again.");
+      }
 
-      // A full navigation guarantees the server/proxy receives the fresh Supabase cookies.
+      // The server route writes the authenticated Supabase cookies directly to
+      // the browser response. A full navigation then sends those cookies to the
+      // protected server-rendered workspace.
       window.location.assign("/protected");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
