@@ -24,19 +24,14 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
     setSuccess(null);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        cache: "no-store",
-        body: JSON.stringify({ email: email.trim(), password }),
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
       });
 
-      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-      if (!response.ok) throw new Error(payload?.error || "Unable to sign in. Please try again.");
+      if (error) throw error;
 
-      // The server endpoint writes the Supabase auth cookies directly onto
-      // the response. Navigate only after that response has been received.
       window.location.replace("/protected");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
