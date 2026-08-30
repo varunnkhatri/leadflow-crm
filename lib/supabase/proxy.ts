@@ -31,17 +31,13 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isAuthPath = pathname.startsWith("/auth") || pathname.startsWith("/api/auth");
+  const isPublicPath = pathname === "/";
 
-  // Let /protected perform the authoritative server-side getUser() check.
-  // This avoids a proxy-level getClaims() decision bouncing a valid login
-  // back to /auth/login before the page can read the session cookie.
-  if (!isAuthPath && pathname !== "/" && pathname !== "/protected") {
-    const { data } = await supabase.auth.getClaims();
-    if (!data?.claims) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/auth/login";
-      return NextResponse.redirect(url);
-    }
+  // Refresh/synchronize the Supabase SSR session before any protected
+  // Server Component reads it. The protected page remains responsible for
+  // the authoritative getUser() authorization check.
+  if (!isAuthPath && !isPublicPath) {
+    await supabase.auth.getClaims();
   }
 
   return supabaseResponse;
