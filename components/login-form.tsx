@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
+import { loginAction } from "@/app/auth/login/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -24,19 +25,8 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
     setSuccess(null);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        cache: "no-store",
-        body: JSON.stringify({ email: email.trim(), password }),
-      });
-
-      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-      if (!response.ok) throw new Error(payload?.error || "Unable to sign in. Please try again.");
-
-      // The API response is the session handoff. Only navigate after the
-      // browser has received the Set-Cookie headers from the server.
+      const result = await loginAction(email.trim(), password);
+      if (result?.error) throw new Error(result.error);
       window.location.replace("/protected");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Unable to sign in. Please try again.");
