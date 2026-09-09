@@ -44,6 +44,20 @@ async function dispatchAutomation(payload: CreatedLead & {
   }
 }
 
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ token: string }> },
+) {
+  const { token } = await params;
+  if (!UUID_PATTERN.test(token)) {
+    return NextResponse.json({ error: "Unknown public intake endpoint." }, { status: 404 });
+  }
+
+  const formUrl = new URL("/contact", request.url);
+  formUrl.searchParams.set("token", token);
+  return NextResponse.redirect(formUrl);
+}
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ token: string }> },
