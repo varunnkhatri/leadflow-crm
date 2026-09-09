@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { Activity, ArrowUpRight, Bot, CheckCircle2, Clock3, Mail, MessageSquare, PauseCircle, PlayCircle, PlugZap, Search, Sparkles, Target, UserRound, UsersRound, Zap } from "lucide-react";
+import { Activity, ArrowUpRight, Bot, CheckCircle2, Clock3, MessageSquare, PauseCircle, PlugZap, Search, Sparkles, Target, UserRound, Zap } from "lucide-react";
 
 type CustomerRow = { id: string; name: string; email: string | null; phone: string | null; source: string | null; lastSeen: string };
 type ConversationRow = { id: string; customerId: string; name: string; channel: string; status: string; aiPaused: boolean; lastMessage: string | null; updated: string };

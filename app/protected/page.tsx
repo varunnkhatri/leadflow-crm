@@ -48,7 +48,6 @@ async function Dashboard() {
   const leads = (leadsData ?? []) as Lead[];
   const activities = (activitiesData ?? []) as Activity[];
   const hot = leads.filter((l) => String(l.temperature).toUpperCase() === "HOT");
-  const warm = leads.filter((l) => String(l.temperature).toUpperCase() === "WARM");
   const open = leads.filter((l) => String(l.status).toUpperCase() === "OPEN");
   const highIntent = leads.filter((l) => (Number(l.purchase_probability) || 0) >= 70 || String(l.intent).toLowerCase().includes("high"));
   const scored = leads.filter((l) => typeof l.lead_score === "number");

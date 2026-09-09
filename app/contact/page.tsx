@@ -26,7 +26,17 @@ export default function ContactPage() {
     };
 
     try {
-      const response = await fetch("/api/leads", {
+      const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+      const token =
+        searchParams?.get("token") ||
+        process.env.NEXT_PUBLIC_PUBLIC_INTAKE_TOKEN ||
+        process.env.NEXT_PUBLIC_LEAD_INTAKE_TOKEN;
+
+      if (!token) {
+        throw new Error("Public intake token is required.");
+      }
+
+      const response = await fetch(`/api/public/leads/${encodeURIComponent(token)}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,7 +76,7 @@ export default function ContactPage() {
           </h1>
 
           <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-400">
-            Tell us what you're looking for and our team will get
+            Tell us what you&apos;re looking for and our team will get
             back to you.
           </p>
         </section>

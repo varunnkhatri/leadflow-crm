@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowRight, Check, Filter, Plus, Search, Zap } from "lucide-react";
+import { ArrowRight, Filter, Plus, Search, Zap } from "lucide-react";
 
 const sampleRows = [
   ["Acme Industries", "High intent", "94", "Today"],
