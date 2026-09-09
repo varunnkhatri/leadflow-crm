@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Activity, ArrowUpRight, Bot, CheckCircle2, Clock3, MessageSquare, PauseCircle, PlugZap, Search, Sparkles, Target, UserRound, Zap } from "lucide-react";
+import { Activity, ArrowUpRight, Bot, Check, CheckCircle2, Clock3, Copy, MessageSquare, PauseCircle, PlugZap, Search, Sparkles, Target, UserRound, Zap } from "lucide-react";
 
 type CustomerRow = { id: string; name: string; email: string | null; phone: string | null; source: string | null; lastSeen: string };
 type ConversationRow = { id: string; customerId: string; name: string; channel: string; status: string; aiPaused: boolean; lastMessage: string | null; updated: string };
@@ -64,7 +64,111 @@ function Analytics({ leads }: { leads: { source: string | null; score: number; v
 }
 
 function Integrations({ integrations }: { integrations: IntegrationRow[] }) {
-  return <><div className="border border-white/10 bg-[#080808] p-6 sm:p-8"><div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"><div><p className="leadflow-kicker">CONNECTED SYSTEMS</p><h3 className="mt-2 text-3xl font-black uppercase tracking-[-.05em]">Your automation surface.</h3><p className="mt-3 max-w-2xl text-sm leading-6 text-white/35">Only show integrations as connected when LeadFlow can verify their health. No fake green checkmarks.</p></div><Link href="/contact" className="leadflow-button leadflow-button-primary">Request integration <ArrowUpRight size={13}/></Link></div></div><div className="mt-6 grid gap-px border border-white/10 bg-white/10 md:grid-cols-2">{integrations.map((i)=><div key={i.component} className="bg-[#080808] p-6"><div className="flex items-center justify-between"><div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center border border-white/10"><PlugZap size={17} className={i.healthy ? "text-[#b7ff58]" : "text-white/30"}/></div><div><p className="font-semibold">{i.component}</p><p className="mt-1 text-[9px] uppercase tracking-[.15em] text-white/25">Checked {formatDate(i.checkedAt)}</p></div></div><span className={`text-[9px] font-bold uppercase tracking-[.15em] ${i.healthy ? "text-[#b7ff58]" : "text-amber-300"}`}>{i.healthy ? "Healthy" : `${i.issueCount} issue${i.issueCount === 1 ? "" : "s"}`}</span></div></div>)}{!integrations.length&&<div className="bg-[#080808] p-12 text-center md:col-span-2"><PlugZap size={24} className="mx-auto text-white/20"/><h3 className="mt-4 text-xl font-black uppercase">No health checks recorded</h3><p className="mx-auto mt-2 max-w-lg text-xs leading-5 text-white/30">LeadFlow will not pretend a provider is connected. Connect a source and the health monitor can report its actual state here.</p></div>}</div></>;
+  const [intake, setIntake] = useState<{ endpoint: string; token: string } | null>(null);
+  const [loadingIntake, setLoadingIntake] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/public-intake")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.endpoint && data?.token) {
+          setIntake({ endpoint: data.endpoint, token: data.token });
+        }
+      })
+      .catch(() => null)
+      .finally(() => setLoadingIntake(false));
+  }, []);
+
+  function copyEndpoint() {
+    if (!intake?.endpoint) return;
+    navigator.clipboard.writeText(intake.endpoint);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div className="space-y-8">
+      <div className="border border-white/10 bg-[#080808] p-6 sm:p-8">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="leadflow-kicker">CONNECTED SYSTEMS</p>
+            <h3 className="mt-2 text-3xl font-black uppercase tracking-[-.05em]">Your automation surface.</h3>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/35">
+              Monitor connected integrations, health status, and API endpoints for your workspace.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="border border-white/10 bg-[#080808] p-6 sm:p-8">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="leadflow-kicker">PUBLIC INTAKE</p>
+            <h3 className="mt-2 text-2xl font-black uppercase tracking-[-.04em]">Public Lead Intake Endpoint</h3>
+            <p className="mt-2 max-w-2xl text-xs leading-5 text-white/40">
+              Each business workspace has its own opaque public token. Enquiries posted to this endpoint resolve your business server-side automatically.
+            </p>
+          </div>
+          <Sparkles size={18} className="text-[#b7ff58]" />
+        </div>
+
+        <div className="mt-6 border border-white/10 bg-[#040404] p-4 sm:p-5">
+          <p className="text-[10px] font-bold uppercase tracking-[.18em] text-white/30">Workspace Endpoint URL</p>
+          {loadingIntake ? (
+            <p className="mt-2 text-xs text-white/30">Loading workspace token...</p>
+          ) : intake ? (
+            <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <code className="break-all rounded bg-white/5 px-3 py-2 text-xs font-mono text-[#b7ff58]">
+                {intake.endpoint}
+              </code>
+              <button
+                onClick={copyEndpoint}
+                className="leadflow-button shrink-0 justify-center"
+              >
+                {copied ? <><Check size={13} className="text-[#b7ff58]" /> Copied</> : <><Copy size={13} /> Copy Endpoint</>}
+              </button>
+            </div>
+          ) : (
+            <p className="mt-2 text-xs text-white/30">Public intake token unavailable for this workspace session.</p>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <h4 className="mb-4 text-xs font-bold uppercase tracking-[.18em] text-white/40">Integration Health Status</h4>
+        <div className="grid gap-px border border-white/10 bg-white/10 md:grid-cols-2">
+          {integrations.map((i) => (
+            <div key={i.component} className="bg-[#080808] p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center border border-white/10">
+                    <PlugZap size={17} className={i.healthy ? "text-[#b7ff58]" : "text-white/30"} />
+                  </div>
+                  <div>
+                    <p className="font-semibold">{i.component}</p>
+                    <p className="mt-1 text-[9px] uppercase tracking-[.15em] text-white/25">Checked {formatDate(i.checkedAt)}</p>
+                  </div>
+                </div>
+                <span className={`text-[9px] font-bold uppercase tracking-[.15em] ${i.healthy ? "text-[#b7ff58]" : "text-amber-300"}`}>
+                  {i.healthy ? "Healthy" : `${i.issueCount} issue${i.issueCount === 1 ? "" : "s"}`}
+                </span>
+              </div>
+            </div>
+          ))}
+          {!integrations.length && (
+            <div className="bg-[#080808] p-12 text-center md:col-span-2">
+              <PlugZap size={24} className="mx-auto text-white/20" />
+              <h3 className="mt-4 text-xl font-black uppercase">No health checks recorded</h3>
+              <p className="mx-auto mt-2 max-w-lg text-xs leading-5 text-white/30">
+                LeadFlow will not pretend a provider is connected. Connect a source and the health monitor can report its actual state here.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function Stats({ items }: { items: [string, string | number, string][] }) { return <div className="grid gap-px border border-white/10 bg-white/10 sm:grid-cols-3">{items.map(([label,value,detail])=><div key={label} className="bg-[#080808] p-5"><p className="text-[9px] font-bold uppercase tracking-[.18em] text-white/30">{label}</p><p className="mt-3 text-3xl font-black tracking-[-.04em]">{value}</p><p className="mt-1 text-[10px] text-white/30">{detail}</p></div>)}</div>; }

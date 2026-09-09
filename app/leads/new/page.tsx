@@ -25,7 +25,9 @@ export default function NewLeadPage() {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Unable to create lead.");
-      router.push(`/leads/${result.lead.id}`);
+      const leadId = result.lead?.lead_id || result.lead?.id;
+      if (!leadId) throw new Error("Lead created, but no valid lead ID was returned.");
+      router.push(`/leads/${leadId}`);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to create lead.");
