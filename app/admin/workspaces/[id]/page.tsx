@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
 import { Activity, ArrowLeft, Building2, Flame, Globe, Mail, Users, UserRoundCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { setWorkspaceActive } from "./actions";
 
 type User = { id: string; email: string; full_name: string | null; role: string; is_active: boolean; created_at: string; onboarding_completed: boolean };
 type Lead = { id: string; enquiry: string | null; temperature: string | null; stage: string | null; status: string | null; deal_value: number | null; created_at: string };
@@ -33,7 +34,14 @@ export default async function WorkspaceAdminPage({ params }: { params: Promise<{
           <div className="mt-3 flex flex-wrap items-center gap-4"><h1 className="text-5xl font-black uppercase leading-[.9] tracking-[-.06em] sm:text-7xl">{business.name}</h1><span className={`border px-3 py-2 text-[9px] font-bold uppercase tracking-[.15em] ${business.is_active ? "border-[#b7ff58]/25 text-[#b7ff58]" : "border-white/10 text-white/30"}`}>{business.is_active ? "Active" : "Inactive"}</span></div>
           <div className="mt-4 flex flex-wrap gap-4 text-xs text-white/35"><span className="inline-flex items-center gap-2"><Building2 size={13}/>{business.industry || "No industry"}</span>{business.website && <span className="inline-flex items-center gap-2"><Globe size={13}/>{business.website}</span>}</div>
         </div>
-        <div className="text-[10px] uppercase tracking-[.14em] text-white/25">Created {formatDate(business.created_at)}</div>
+        <div className="flex flex-col items-start gap-3 lg:items-end">
+          <div className="text-[10px] uppercase tracking-[.14em] text-white/25">Created {formatDate(business.created_at)}</div>
+          <form action={setWorkspaceActive.bind(null, id, !business.is_active)}>
+            <button type="submit" className={`border px-4 py-3 text-[9px] font-black uppercase tracking-[.16em] transition ${business.is_active ? "border-red-400/20 text-red-300/70 hover:border-red-400/40 hover:text-red-300" : "border-[#b7ff58]/25 text-[#b7ff58] hover:border-[#b7ff58]/50"}`}>
+              {business.is_active ? "Deactivate workspace" : "Activate workspace"}
+            </button>
+          </form>
+        </div>
       </header>
 
       <section className="mt-8 grid gap-px border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
