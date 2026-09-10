@@ -17,12 +17,12 @@ export async function setWorkspaceActive(id: string, isActive: boolean, _formDat
   });
 
   if (error) throw new Error("update_failed");
-
   revalidatePath("/admin");
   revalidatePath(`/admin/workspaces/${id}`);
 }
 
-export async function setWorkspaceUserRole(id: string, userId: string, role: string, _formData: FormData): Promise<void> {
+export async function setWorkspaceUserRole(id: string, userId: string, _role: string, formData: FormData): Promise<void> {
+  const role = String(formData.get("role") || "");
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("unauthorized");
