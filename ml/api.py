@@ -33,3 +33,19 @@ def metrics(x_api_key:str|None=Header(default=None)):
     if not (ROOT/"metrics.json").exists():
         raise HTTPException(503,"Train models first")
     return json.loads((ROOT/"metrics.json").read_text())
+
+class SentimentInput(BaseModel):
+    text:str=Field(min_length=1,max_length=3000)
+@app.post("/sentiment")
+def sentiment(body:SentimentInput,x_api_key:str|None=Header(default=None)):
+    authorize(x_api_key)
+    if not (ROOT/"sentiment.joblib").exists():
+        raise HTTPException(503,"Train sentiment model first")
+    model=joblib.load(ROOT/"sentiment.joblib")
+    return {"sentiment":str(model.predict([body.text])[0]),"model":"tfidf_logistic_regression"}
+@app.get("/sentiment/metrics")
+def sentiment_metrics(x_api_key:str|None=Header(default=None)):
+    authorize(x_api_key)
+    if not (ROOT/"sentiment_metrics.json").exists():
+        raise HTTPException(503,"Train sentiment model first")
+    return json.loads((ROOT/"sentiment_metrics.json").read_text())
