@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
 export async function setWorkspaceActive(id: string, isActive: boolean, _formData: FormData): Promise<void> {
+  void _formData;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("unauthorized");
@@ -41,6 +42,7 @@ export async function setWorkspaceUserRole(id: string, userId: string, _role: st
 }
 
 export async function setWorkspaceUserActive(id: string, userId: string, isActive: boolean, _formData: FormData): Promise<void> {
+  void _formData;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("unauthorized");

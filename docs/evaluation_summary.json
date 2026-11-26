@@ -1,0 +1,557 @@
+{
+  "academic_disclaimer": "All figures are generated directly from synthetic training/evaluation scripts (train.py and sentiment.py), not real customer data or hardcoded constants.",
+  "conversion_and_segmentation": {
+    "provenance": "Synthetic LeadFlow CRM v2 demonstration dataset (non-customer)",
+    "is_synthetic": true,
+    "rows": 2400,
+    "train_rows": 1920,
+    "test_rows": 480,
+    "selected_model": "random_forest",
+    "selection_criterion": "5-fold Stratified CV ROC-AUC (tie-breaker: CV F1; held-out test excluded)",
+    "dataset_stats": {
+      "provenance": "Synthetic LeadFlow CRM v2 demonstration dataset (non-customer)",
+      "is_synthetic": true,
+      "rows": 2400,
+      "train_rows": 1920,
+      "test_rows": 480,
+      "cv_folds": 5,
+      "class_distribution": {
+        "not_converted_0": 1035,
+        "converted_1": 1365,
+        "conversion_rate": 0.5687
+      },
+      "missing_values": {
+        "source": 62,
+        "product_interest": 74,
+        "enquiry_length": 46
+      },
+      "canonical_sources": {
+        "public_form": 771,
+        "social": 394,
+        "referral": 388,
+        "paid_ads": 365,
+        "manual": 297,
+        "other": 185
+      },
+      "canonical_services": {
+        "website": 682,
+        "marketing": 631,
+        "sales_demo": 569,
+        "consulting": 297,
+        "support": 184,
+        "other": 37
+      },
+      "enquiry_length_stats": {
+        "min": 15.0,
+        "median": 266.0,
+        "mean": 332.0,
+        "p95": 821.7,
+        "max": 948.0
+      }
+    },
+    "models": {
+      "logistic_regression": {
+        "best_params": {
+          "C": 1.0
+        },
+        "cv": {
+          "roc_auc_mean": 0.7936,
+          "roc_auc_std": 0.0304,
+          "accuracy_mean": 0.7193,
+          "precision_mean": 0.7336,
+          "recall_mean": 0.7967,
+          "f1_mean": 0.7637
+        },
+        "train_accuracy": 0.7229,
+        "train_roc_auc": 0.7999,
+        "accuracy": 0.7188,
+        "precision": 0.7315,
+        "recall": 0.7985,
+        "f1": 0.7636,
+        "roc_auc": 0.8024,
+        "overfitting_gap": -0.0025,
+        "confusion_matrix": [
+          [
+            127,
+            80
+          ],
+          [
+            55,
+            218
+          ]
+        ],
+        "top_features": [
+          {
+            "feature": "source_norm_referral",
+            "importance": 1.0992,
+            "direction": "positive"
+          },
+          {
+            "feature": "source_norm_social",
+            "importance": 0.9017,
+            "direction": "negative"
+          },
+          {
+            "feature": "service_norm_support",
+            "importance": 0.667,
+            "direction": "negative"
+          },
+          {
+            "feature": "source_norm_manual",
+            "importance": 0.5234,
+            "direction": "positive"
+          },
+          {
+            "feature": "source_norm_other",
+            "importance": 0.4465,
+            "direction": "negative"
+          },
+          {
+            "feature": "service_norm_consulting",
+            "importance": 0.4075,
+            "direction": "positive"
+          },
+          {
+            "feature": "service_norm_other",
+            "importance": 0.3553,
+            "direction": "positive"
+          },
+          {
+            "feature": "enquiry_length",
+            "importance": 0.2926,
+            "direction": "positive"
+          }
+        ]
+      },
+      "random_forest": {
+        "best_params": {
+          "n_estimators": 200,
+          "max_depth": 6,
+          "min_samples_leaf": 5
+        },
+        "cv": {
+          "roc_auc_mean": 0.7982,
+          "roc_auc_std": 0.0331,
+          "accuracy_mean": 0.7151,
+          "precision_mean": 0.7371,
+          "recall_mean": 0.7765,
+          "f1_mean": 0.7554
+        },
+        "train_accuracy": 0.7594,
+        "train_roc_auc": 0.8457,
+        "accuracy": 0.7146,
+        "precision": 0.7429,
+        "recall": 0.7619,
+        "f1": 0.7523,
+        "roc_auc": 0.798,
+        "overfitting_gap": 0.0477,
+        "confusion_matrix": [
+          [
+            135,
+            72
+          ],
+          [
+            65,
+            208
+          ]
+        ],
+        "top_features": [
+          {
+            "feature": "enquiry_log_length",
+            "importance": 0.328,
+            "direction": "nonlinear"
+          },
+          {
+            "feature": "enquiry_length",
+            "importance": 0.3142,
+            "direction": "nonlinear"
+          },
+          {
+            "feature": "source_norm_social",
+            "importance": 0.1033,
+            "direction": "nonlinear"
+          },
+          {
+            "feature": "source_norm_referral",
+            "importance": 0.0623,
+            "direction": "nonlinear"
+          },
+          {
+            "feature": "service_norm_support",
+            "importance": 0.0422,
+            "direction": "nonlinear"
+          },
+          {
+            "feature": "service_norm_marketing",
+            "importance": 0.0346,
+            "direction": "nonlinear"
+          },
+          {
+            "feature": "service_norm_consulting",
+            "importance": 0.0299,
+            "direction": "nonlinear"
+          },
+          {
+            "feature": "source_norm_manual",
+            "importance": 0.0231,
+            "direction": "nonlinear"
+          }
+        ]
+      }
+    },
+    "segmentation": {
+      "clusters": 6,
+      "silhouette": 0.4337,
+      "test_silhouette": 0.4308,
+      "k_evaluations": [
+        {
+          "k": 2,
+          "silhouette": 0.3695,
+          "test_silhouette": 0.3609,
+          "inertia": 3234.95,
+          "min_cluster_pct": 22.92
+        },
+        {
+          "k": 3,
+          "silhouette": 0.3368,
+          "test_silhouette": 0.3298,
+          "inertia": 2426.04,
+          "min_cluster_pct": 22.71
+        },
+        {
+          "k": 4,
+          "silhouette": 0.368,
+          "test_silhouette": 0.3639,
+          "inertia": 1994.41,
+          "min_cluster_pct": 19.06
+        },
+        {
+          "k": 5,
+          "silhouette": 0.3928,
+          "test_silhouette": 0.387,
+          "inertia": 1724.05,
+          "min_cluster_pct": 15.16
+        },
+        {
+          "k": 6,
+          "silhouette": 0.4337,
+          "test_silhouette": 0.4308,
+          "inertia": 1477.35,
+          "min_cluster_pct": 10.94
+        },
+        {
+          "k": 7,
+          "silhouette": 0.4335,
+          "test_silhouette": 0.4313,
+          "inertia": 1299.43,
+          "min_cluster_pct": 6.93
+        }
+      ],
+      "pca_explained_variance_ratio": [
+        0.4559,
+        0.1539
+      ],
+      "cluster_profiles": [
+        {
+          "cluster": 0,
+          "label": "High-Propensity Referral \u00b7 Sales Demo",
+          "description": "Predominantly Referral leads seeking Sales Demo with detailed multi-sentence enquiries (avg 595 chars); converts above workspace average (85.6% win rate).",
+          "size": 319,
+          "share_pct": 16.6,
+          "dominant_source": "referral",
+          "dominant_service": "sales_demo",
+          "avg_enquiry_length": 594.8,
+          "conversion_rate": 0.8558,
+          "centroid_pc1": 0.9426,
+          "centroid_pc2": -0.7185
+        },
+        {
+          "cluster": 1,
+          "label": "Low-Propensity Paid Ads \u00b7 Marketing",
+          "description": "Predominantly Paid Ads leads seeking Marketing with moderately scoped enquiries (avg 221 chars); converts below average and benefits from qualification (46.6% win rate).",
+          "size": 290,
+          "share_pct": 15.1,
+          "dominant_source": "paid_ads",
+          "dominant_service": "marketing",
+          "avg_enquiry_length": 221.0,
+          "conversion_rate": 0.4655,
+          "centroid_pc1": -0.113,
+          "centroid_pc2": 0.2541
+        },
+        {
+          "cluster": 2,
+          "label": "High-Propensity Public Form \u00b7 Website",
+          "description": "Predominantly Public Form leads seeking Website with detailed multi-sentence enquiries (avg 393 chars); converts above workspace average (66.9% win rate).",
+          "size": 366,
+          "share_pct": 19.1,
+          "dominant_source": "public_form",
+          "dominant_service": "website",
+          "avg_enquiry_length": 393.3,
+          "conversion_rate": 0.6694,
+          "centroid_pc1": 0.5203,
+          "centroid_pc2": 0.8963
+        },
+        {
+          "cluster": 3,
+          "label": "High-Propensity Referral \u00b7 Consulting",
+          "description": "Predominantly Referral leads seeking Consulting with detailed multi-sentence enquiries (avg 590 chars); converts above workspace average (86.6% win rate).",
+          "size": 299,
+          "share_pct": 15.6,
+          "dominant_source": "referral",
+          "dominant_service": "consulting",
+          "avg_enquiry_length": 589.8,
+          "conversion_rate": 0.8662,
+          "centroid_pc1": 1.0104,
+          "centroid_pc2": -0.5243
+        },
+        {
+          "cluster": 4,
+          "label": "Low-Propensity Social \u00b7 Support",
+          "description": "Predominantly Social leads seeking Support with brief introductory enquiries (avg 52 chars); converts below average and benefits from qualification (18.1% win rate).",
+          "size": 436,
+          "share_pct": 22.7,
+          "dominant_source": "social",
+          "dominant_service": "support",
+          "avg_enquiry_length": 52.1,
+          "conversion_rate": 0.1812,
+          "centroid_pc1": -1.6976,
+          "centroid_pc2": -0.3069
+        },
+        {
+          "cluster": 5,
+          "label": "Low-Propensity Public Form \u00b7 Marketing",
+          "description": "Predominantly Public Form leads seeking Marketing with moderately scoped enquiries (avg 228 chars); converts below average and benefits from qualification (48.1% win rate).",
+          "size": 210,
+          "share_pct": 10.9,
+          "dominant_source": "public_form",
+          "dominant_service": "marketing",
+          "avg_enquiry_length": 227.8,
+          "conversion_rate": 0.481,
+          "centroid_pc1": -0.0968,
+          "centroid_pc2": 0.5622
+        }
+      ],
+      "sample_points_count": 240
+    }
+  },
+  "sentiment_analysis": {
+    "provenance": "Synthetic LeadFlow CRM v2 sentiment dataset (non-customer)",
+    "is_synthetic": true,
+    "model": "tfidf_logistic_regression",
+    "best_params": {
+      "C": 5.0,
+      "ngram_range": [
+        1,
+        2
+      ],
+      "sublinear_tf": true
+    },
+    "rows": 225,
+    "train_rows": 168,
+    "test_rows": 57,
+    "class_distribution": {
+      "positive": 75,
+      "neutral": 75,
+      "negative": 75
+    },
+    "topic_distribution": {
+      "pricing_enquiry": 60,
+      "complaint": 55,
+      "general_question": 40,
+      "purchase_intent": 35,
+      "general_feedback": 35
+    },
+    "cv": {
+      "cv_accuracy_mean": 0.8157,
+      "cv_accuracy_std": 0.0333,
+      "cv_f1_macro_mean": 0.8165,
+      "cv_f1_macro_std": 0.0325
+    },
+    "metrics": {
+      "accuracy": 0.7544,
+      "precision_macro": 0.7599,
+      "recall_macro": 0.7544,
+      "f1_macro": 0.7558,
+      "f1_weighted": 0.7558
+    },
+    "report": {
+      "negative": {
+        "precision": 0.8235294117647058,
+        "recall": 0.7368421052631579,
+        "f1-score": 0.7777777777777778,
+        "support": 19.0
+      },
+      "neutral": {
+        "precision": 0.7894736842105263,
+        "recall": 0.7894736842105263,
+        "f1-score": 0.7894736842105263,
+        "support": 19.0
+      },
+      "positive": {
+        "precision": 0.6666666666666666,
+        "recall": 0.7368421052631579,
+        "f1-score": 0.7,
+        "support": 19.0
+      },
+      "accuracy": 0.7543859649122807,
+      "macro avg": {
+        "precision": 0.7598899208806329,
+        "recall": 0.7543859649122807,
+        "f1-score": 0.7557504873294348,
+        "support": 57.0
+      },
+      "weighted avg": {
+        "precision": 0.7598899208806329,
+        "recall": 0.7543859649122807,
+        "f1-score": 0.7557504873294346,
+        "support": 57.0
+      }
+    },
+    "labels": [
+      "negative",
+      "neutral",
+      "positive"
+    ],
+    "confusion_matrix": [
+      [
+        14,
+        1,
+        4
+      ],
+      [
+        1,
+        15,
+        3
+      ],
+      [
+        2,
+        3,
+        14
+      ]
+    ],
+    "unseen_evaluation": {
+      "total": 9,
+      "correct": 9,
+      "accuracy": 1.0,
+      "examples": [
+        {
+          "text": "We loved the walkthrough and want to sign the agreement by Friday",
+          "category": "purchase_intent",
+          "expected": "positive",
+          "predicted": "positive",
+          "confidence": 0.7104,
+          "probabilities": {
+            "negative": 0.1255,
+            "neutral": 0.1642,
+            "positive": 0.7104
+          },
+          "correct": true
+        },
+        {
+          "text": "The itemized pricing is clear and fits nicely inside our Q4 budget",
+          "category": "pricing_enquiry",
+          "expected": "positive",
+          "predicted": "positive",
+          "confidence": 0.7547,
+          "probabilities": {
+            "negative": 0.1279,
+            "neutral": 0.1174,
+            "positive": 0.7547
+          },
+          "correct": true
+        },
+        {
+          "text": "Your consultant explained the CRM workflow clearly and professionally",
+          "category": "general_feedback",
+          "expected": "positive",
+          "predicted": "positive",
+          "confidence": 0.6451,
+          "probabilities": {
+            "negative": 0.1809,
+            "neutral": 0.174,
+            "positive": 0.6451
+          },
+          "correct": true
+        },
+        {
+          "text": "Could you share your standard rate card and payment milestones",
+          "category": "pricing_enquiry",
+          "expected": "neutral",
+          "predicted": "neutral",
+          "confidence": 0.832,
+          "probabilities": {
+            "negative": 0.0725,
+            "neutral": 0.832,
+            "positive": 0.0955
+          },
+          "correct": true
+        },
+        {
+          "text": "What is the expected timeline for integrating lead forms with our CRM",
+          "category": "general_question",
+          "expected": "neutral",
+          "predicted": "neutral",
+          "confidence": 0.6944,
+          "probabilities": {
+            "negative": 0.1242,
+            "neutral": 0.6944,
+            "positive": 0.1814
+          },
+          "correct": true
+        },
+        {
+          "text": "Please send the NDA and scope document for our team to review",
+          "category": "general_question",
+          "expected": "neutral",
+          "predicted": "neutral",
+          "confidence": 0.6882,
+          "probabilities": {
+            "negative": 0.0642,
+            "neutral": 0.6882,
+            "positive": 0.2476
+          },
+          "correct": true
+        },
+        {
+          "text": "Nobody replied to our complaint and the dashboard is still broken",
+          "category": "complaint",
+          "expected": "negative",
+          "predicted": "negative",
+          "confidence": 0.5866,
+          "probabilities": {
+            "negative": 0.5866,
+            "neutral": 0.1322,
+            "positive": 0.2812
+          },
+          "correct": true
+        },
+        {
+          "text": "These hidden charges on the invoice are unacceptable, please cancel",
+          "category": "pricing_complaint",
+          "expected": "negative",
+          "predicted": "negative",
+          "confidence": 0.5856,
+          "probabilities": {
+            "negative": 0.5856,
+            "neutral": 0.2359,
+            "positive": 0.1785
+          },
+          "correct": true
+        },
+        {
+          "text": "Very frustrated with the missed deadlines and poor support quality",
+          "category": "complaint",
+          "expected": "negative",
+          "predicted": "negative",
+          "confidence": 0.6986,
+          "probabilities": {
+            "negative": 0.6986,
+            "neutral": 0.0681,
+            "positive": 0.2333
+          },
+          "correct": true
+        }
+      ]
+    }
+  }
+}

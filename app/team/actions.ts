@@ -27,6 +27,7 @@ export async function setTeamUserRole(userId: string, formData: FormData): Promi
 }
 
 export async function setTeamUserActive(userId: string, isActive: boolean, _formData: FormData): Promise<void> {
+  void _formData;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("unauthorized");
