@@ -1,0 +1,37 @@
+name: ML verification
+on:
+  push:
+    branches: [mca-ml-upgrade]
+  workflow_dispatch:
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ml
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt httpx
+      - run: python demo_data.py
+      - run: python train.py demo_leads.csv --provenance "Synthetic demonstration data, seed 42"
+      - run: |
+          ML_API_KEY=test-key python - <<'PY'
+          from fastapi.testclient import TestClient
+          from api import app
+          c=TestClient(app)
+          assert c.get('/health').json()['ready']
+          assert c.get('/metrics').status_code == 401
+          h={'x-api-key':'test-key'}
+          r=c.post('/predict',headers=h,json={'source':'referral','product_interest':'website','enquiry_length':200})
+          assert r.status_code == 200, r.text
+          assert 0 <= r.json()['conversion_probability'] <= 1
+          assert c.get('/metrics',headers=h).status_code == 200
+          print(r.json())
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-model-metrics
+          path: ml/artifacts/metrics.json
