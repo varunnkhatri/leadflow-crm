@@ -1,0 +1,3 @@
+# LeadFlow academic ML prototype
+
+Install requirements in a Python virtual environment. Run `python train.py leads.csv --provenance 'Describe source and collection method'`. CSV columns: source, product_interest, enquiry_length, converted (0/1). Use only features known at intake, resolved outcomes, and one record per independent customer; do not label open leads as lost. Keep personal data out of Git. The fixed holdout compares Logistic Regression and Random Forest; K-Means is evaluated separately. Synthetic data must be identified as synthetic and cannot establish real-world performance. This initial module is not yet connected to production.
