@@ -16,6 +16,13 @@ export async function POST(request: Request) {
   try {
     const r=await fetch(url.replace(/\/$/,"")+"/predict",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":key},body:JSON.stringify({source:lead.source||"unknown",product_interest:lead.product_interest||"unknown",enquiry_length:Math.min(3000,(lead.enquiry||"").length)}),signal:AbortSignal.timeout(10000),cache:"no-store"});
     if(!r.ok) return NextResponse.json({error:"ML service unavailable"},{status:502});
-    return NextResponse.json(await r.json());
+    const prediction=await r.json();
+    // Redact common contact identifiers before sending text to the ML service.
+    const message=String(lead.enquiry||"").replace(/\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}\b/g,"[email]").replace(/\+?\d[\d\s().-]{7,}\d/g,"[phone]").slice(0,3000);
+    let sentiment=null;
+    if(message.trim()){
+      try{const sr=await fetch(url.replace(/\/$/,"")+"/sentiment",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":key},body:JSON.stringify({text:message}),signal:AbortSignal.timeout(10000),cache:"no-store"});if(sr.ok)sentiment=(await sr.json()).sentiment;}catch{}
+    }
+    return NextResponse.json({...prediction,sentiment});
   } catch {return NextResponse.json({error:"ML service unavailable"},{status:502});}
 }
