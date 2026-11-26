@@ -6,7 +6,7 @@ import { useRef, useState } from "react";
 import { ArrowUpRight, BarChart3, Bot, BriefcaseBusiness, CheckSquare, ChevronRight, Command, ContactRound, LayoutDashboard, Megaphone, MessageSquare, Plus, Search, Sparkles, UsersRound, UserRoundCog, X } from "lucide-react";
 
 const items = [
-  ["Dashboard", "/protected", LayoutDashboard], ["Leads", "/leads", UsersRound], ["Pipeline", "/pipeline", BriefcaseBusiness], ["Customers", "/customers", ContactRound], ["Conversations", "/conversations", MessageSquare], ["Tasks", "/tasks", CheckSquare], ["AI Agents", "/ai-agents", Bot], ["Campaigns", "/campaigns", Megaphone], ["Analytics", "/analytics", BarChart3], ["Integrations", "/integrations", Command], ["Team", "/team", UserRoundCog],
+  ["Dashboard", "/protected", LayoutDashboard], ["Leads", "/leads", UsersRound], ["Pipeline", "/pipeline", BriefcaseBusiness], ["Customers", "/customers", ContactRound], ["Conversations", "/conversations", MessageSquare], ["Tasks", "/tasks", CheckSquare], ["AI Agents", "/ai-agents", Bot], ["ML Lab", "/ml-lab", Sparkles], ["Campaigns", "/campaigns", Megaphone], ["Analytics", "/analytics", BarChart3], ["Integrations", "/integrations", Command], ["Team", "/team", UserRoundCog],
 ] as const;
 
 export function WorkspaceShell({ title, eyebrow, children }: { title: string; eyebrow?: string; children: React.ReactNode }) {
